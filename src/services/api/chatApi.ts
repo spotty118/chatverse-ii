@@ -86,6 +86,7 @@ export const chatApi = {
 
     try {
       let models: string[] = [];
+      let apiResponse: Response;
       
       switch (provider) {
         case 'openai':
@@ -99,9 +100,9 @@ export const chatApi = {
           break;
 
         case 'google':
-          response = await fetch(`https://generativelanguage.googleapis.com/v1/models?key=${apiKey}`);
-          if (response.ok) {
-            const data = await response.json();
+          apiResponse = await fetch(`https://generativelanguage.googleapis.com/v1/models?key=${apiKey}`);
+          if (apiResponse.ok) {
+            const data = await apiResponse.json();
             models = data.models
               .filter((model: any) => model.name.includes('gemini'))
               .map((model: any) => model.name.split('/').pop());
@@ -109,21 +110,21 @@ export const chatApi = {
           break;
 
         case 'mistral':
-          response = await fetch("https://api.mistral.ai/v1/models", {
+          apiResponse = await fetch("https://api.mistral.ai/v1/models", {
             headers: {
               "Authorization": `Bearer ${apiKey}`
             }
           });
-          if (response.ok) {
-            const data = await response.json();
+          if (apiResponse.ok) {
+            const data = await apiResponse.json();
             models = data.data.map((model: any) => model.id);
           }
           break;
 
         case 'ollama':
-          response = await fetch("http://localhost:11434/api/tags");
-          if (response.ok) {
-            const data = await response.json();
+          apiResponse = await fetch("http://localhost:11434/api/tags");
+          if (apiResponse.ok) {
+            const data = await apiResponse.json();
             models = data.models || [];
           }
           break;
