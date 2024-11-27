@@ -34,7 +34,9 @@ export const chatApi = {
         throw new Error(error.message || `HTTP error! status: ${response.status}`);
       }
 
-      return response.json();
+      const data = await response.json();
+      console.log("Received response:", data);
+      return data;
     } catch (error) {
       console.error("API Error:", error);
       throw error;
