@@ -30,6 +30,11 @@ class ChatService {
     console.log("State updated:", this.state);
   }
 
+  setApiKey(provider: Provider, key: string) {
+    console.log(`Setting API key for ${provider}`);
+    localStorage.setItem(`${provider}_api_key`, key);
+  }
+
   async sendMessage(
     content: string,
     provider: Provider,
