@@ -36,6 +36,8 @@ export async function streamGoogleChat(
   baseUrl: string,
   onChunk?: (chunk: string) => void
 ): Promise<string> {
+  console.log("Starting Google AI stream request");
+  
   const response = await fetch(`${baseUrl}/models/${options.model}:streamGenerateContent?key=${apiKey}`, {
     method: "POST",
     headers: {
@@ -64,25 +66,51 @@ export async function streamGoogleChat(
   }
 
   try {
+    let buffer = "";
+    
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
 
-      const chunk = decoder.decode(value);
+      buffer += decoder.decode(value, { stream: true });
+      
+      // Process complete chunks
+      const chunks = buffer.split('\n');
+      buffer = chunks.pop() || ""; // Keep the last incomplete chunk in buffer
+      
+      for (const chunk of chunks) {
+        if (chunk.trim()) {
+          try {
+            const data = JSON.parse(chunk);
+            if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
+              const content = data.candidates[0].content.parts[0].text;
+              onChunk?.(content);
+              fullContent += content;
+            }
+          } catch (e) {
+            console.log("Skipping invalid JSON chunk:", chunk);
+          }
+        }
+      }
+    }
+    
+    // Process any remaining data
+    if (buffer) {
       try {
-        const parsed = JSON.parse(chunk);
-        const content = parsed.candidates[0]?.content?.parts[0]?.text || '';
-        if (content) {
+        const data = JSON.parse(buffer);
+        if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
+          const content = data.candidates[0].content.parts[0].text;
           onChunk?.(content);
           fullContent += content;
         }
       } catch (e) {
-        console.error('Error parsing streaming response:', e);
+        console.log("Skipping invalid final JSON chunk");
       }
     }
   } finally {
     reader.releaseLock();
   }
 
+  console.log("Google AI stream completed");
   return fullContent;
 }
