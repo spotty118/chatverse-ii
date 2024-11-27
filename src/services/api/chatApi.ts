@@ -15,8 +15,8 @@ const VALID_OPENAI_MODELS = {
 
 // Define valid Google models with display names
 const VALID_GOOGLE_MODELS = {
-  'gemini-1.5-pro': 'Gemini Pro 1.5',
-  'gemini-1.5-flash': 'Gemini Flash 1.5'
+  'gemini-1.5-pro': 'Gemini-1.5-Pro',
+  'gemini-1.5-flash': 'Gemini-1.5-Flash'
 };
 
 // Helper function to get display name
