@@ -9,7 +9,7 @@ export async function handleOpenAIChat(
   console.log("Starting OpenAI chat request with model:", options.model);
 
   // All current OpenAI models are chat models
-  const endpoint = "/v1/chat/completions";
+  const endpoint = "chat/completions";
   const requestBody = {
     model: options.model,
     messages: [
@@ -21,11 +21,12 @@ export async function handleOpenAIChat(
     stream: false
   };
 
-  const response = await fetch(`${baseUrl}${endpoint}`, {
+  const response = await fetch(`${baseUrl}/${endpoint}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
+      "Authorization": `Bearer ${apiKey}`,
+      "OpenAI-Beta": "assistants=v1"
     },
     body: JSON.stringify(requestBody)
   });
@@ -49,7 +50,7 @@ export async function streamOpenAIChat(
 ): Promise<string> {
   console.log("Starting OpenAI streaming chat with model:", options.model);
   
-  const endpoint = "/v1/chat/completions";
+  const endpoint = "chat/completions";
   const requestBody = {
     model: options.model,
     messages: [
@@ -61,11 +62,12 @@ export async function streamOpenAIChat(
     stream: true
   };
 
-  const response = await fetch(`${baseUrl}${endpoint}`, {
+  const response = await fetch(`${baseUrl}/${endpoint}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
+      "Authorization": `Bearer ${apiKey}`,
+      "OpenAI-Beta": "assistants=v1"
     },
     body: JSON.stringify(requestBody)
   });
