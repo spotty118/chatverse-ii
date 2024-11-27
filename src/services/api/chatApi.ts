@@ -6,36 +6,53 @@ export const chatApi = {
   async sendMessage(content: string, provider: Provider, options: ChatOptions): Promise<Message> {
     console.log("Sending message to API:", { content, provider, options });
     
-    const response = await fetch(`${API_BASE_URL}/chat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        content,
-        provider,
-        options,
-      }),
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          content,
+          provider,
+          options,
+        }),
+      });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || "Failed to send message");
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to send message");
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error("API Error:", error);
+      throw error;
     }
-
-    return response.json();
   },
 
   async getModels(provider: Provider): Promise<string[]> {
     console.log("Fetching models for provider:", provider);
     
-    const response = await fetch(`${API_BASE_URL}/models/${provider}`);
-    
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || "Failed to fetch models");
-    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/models/${provider}`, {
+        headers: {
+          "Accept": "application/json",
+        },
+        credentials: "include",
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to fetch models");
+      }
 
-    return response.json();
+      return response.json();
+    } catch (error) {
+      console.error("API Error:", error);
+      throw error;
+    }
   },
 };
