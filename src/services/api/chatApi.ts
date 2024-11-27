@@ -7,12 +7,10 @@ import { handleOllamaChat } from "../providers/ollamaService";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-// Define valid OpenAI models
+// Define valid OpenAI models - only include definitely available models
 const VALID_OPENAI_MODELS = [
   'gpt-4o',           // High-intelligence flagship model
-  'gpt-4o-mini',      // Affordable small model
-  'o1-preview',       // RL-trained complex reasoning model
-  'o1-mini'           // RL-trained smaller model
+  'gpt-4o-mini'       // Affordable small model
 ];
 
 export const chatApi = {
