@@ -66,52 +66,46 @@ export async function streamGoogleChat(
   }
 
   try {
-    let buffer = "";
+    let accumulatedJson = "";
     
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
 
-      const text = decoder.decode(value, { stream: true });
-      buffer += text;
+      const chunk = decoder.decode(value, { stream: true });
+      accumulatedJson += chunk;
       
-      // Split by newlines and process each complete chunk
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || ""; // Keep the incomplete chunk in buffer
+      // Try to find complete JSON objects
+      let startBracket = accumulatedJson.indexOf('[');
+      let endBracket = accumulatedJson.lastIndexOf(']');
       
-      for (const line of lines) {
-        if (line.trim()) {
-          try {
-            const data = JSON.parse(line);
-            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (startBracket !== -1 && endBracket !== -1 && startBracket < endBracket) {
+        try {
+          const jsonStr = accumulatedJson.substring(startBracket, endBracket + 1);
+          const jsonArray = JSON.parse(jsonStr);
+          
+          // Process each object in the array
+          for (const obj of jsonArray) {
+            const text = obj.candidates?.[0]?.content?.parts?.[0]?.text;
             if (text) {
+              console.log("Received text chunk:", text);
               onChunk?.(text);
               fullContent += text;
             }
-          } catch (e) {
-            console.log("Processing chunk:", line);
           }
+          
+          // Keep any remaining content after the JSON array
+          accumulatedJson = accumulatedJson.substring(endBracket + 1);
+        } catch (e) {
+          // If parsing fails, keep accumulating
+          console.log("Continuing to accumulate JSON chunks");
         }
       }
     }
     
-    // Process any remaining data in buffer
-    if (buffer.trim()) {
-      try {
-        const data = JSON.parse(buffer);
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (text) {
-          onChunk?.(text);
-          fullContent += text;
-        }
-      } catch (e) {
-        console.log("Processing final chunk:", buffer);
-      }
-    }
+    console.log("Google AI stream completed");
+    return fullContent;
   } finally {
     reader.releaseLock();
   }
-
-  console.log("Google AI stream completed");
-  return fullContent;
 }
