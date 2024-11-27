@@ -1,19 +1,24 @@
-interface ModelButton {
-  name: string;
-  onClick?: () => void;
+import { Dispatch, SetStateAction } from 'react';
+import { Provider } from '@/types/chat';
+
+interface SidebarProps {
+  onProviderSelect: Dispatch<SetStateAction<Provider>>;
+  onModelSelect: Dispatch<SetStateAction<string>>;
+  selectedProvider: Provider;
+  selectedModel: string;
 }
 
-export const Sidebar = () => {
-  const models: ModelButton[] = [
+export const Sidebar = ({ onProviderSelect, onModelSelect, selectedProvider, selectedModel }: SidebarProps) => {
+  const models: { name: string; provider?: Provider }[] = [
     { name: "All-In-One" },
-    { name: "GPT-4o" },
-    { name: "GPT-4o mini" },
-    { name: "GPT-4 Turbo" },
-    { name: "g1-mini" },
-    { name: "GPT-3.5" },
-    { name: "Claude 3.5 Sonnet" },
-    { name: "Claude 3.5 Haiku" },
-    { name: "Claude 3 Opus" },
+    { name: "GPT-4o", provider: "openai" },
+    { name: "GPT-4o mini", provider: "openai" },
+    { name: "GPT-4 Turbo", provider: "openai" },
+    { name: "g1-mini", provider: "google" },
+    { name: "GPT-3.5", provider: "openai" },
+    { name: "Claude 3.5 Sonnet", provider: "anthropic" },
+    { name: "Claude 3.5 Haiku", provider: "anthropic" },
+    { name: "Claude 3 Opus", provider: "anthropic" },
   ];
 
   return (
@@ -27,8 +32,15 @@ export const Sidebar = () => {
         {models.map((model) => (
           <button
             key={model.name}
-            onClick={model.onClick}
-            className="w-full text-left px-4 py-2 rounded-lg hover:bg-white/50 transition-colors"
+            onClick={() => {
+              if (model.provider) {
+                onProviderSelect(model.provider);
+              }
+              onModelSelect(model.name);
+            }}
+            className={`w-full text-left px-4 py-2 rounded-lg hover:bg-white/50 transition-colors ${
+              selectedModel === model.name ? 'bg-white/50' : ''
+            }`}
           >
             {model.name}
           </button>
