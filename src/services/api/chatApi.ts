@@ -7,17 +7,50 @@ import { handleOllamaChat } from "../providers/ollamaService";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-// Define valid OpenAI models - only include definitely available models
-const VALID_OPENAI_MODELS = [
-  'gpt-4o',           // High-intelligence flagship model
-  'gpt-4o-mini'       // Affordable small model
-];
+// Define valid OpenAI models with display names
+const VALID_OPENAI_MODELS = {
+  'gpt-4o': 'GPT-4 Opus',
+  'gpt-4o-mini': 'GPT-4 Mini'
+};
 
-// Define valid Google models
-const VALID_GOOGLE_MODELS = [
-  'gemini-1.5-pro',     // Latest Gemini Pro 1.5
-  'gemini-1.5-flash'    // Latest Gemini Flash 1.5
-];
+// Define valid Google models with display names
+const VALID_GOOGLE_MODELS = {
+  'gemini-1.5-pro': 'Gemini Pro 1.5',
+  'gemini-1.5-flash': 'Gemini Flash 1.5'
+};
+
+// Helper function to get display name
+const getModelDisplayName = (provider: Provider, modelId: string): string => {
+  switch (provider) {
+    case 'openai':
+      return VALID_OPENAI_MODELS[modelId as keyof typeof VALID_OPENAI_MODELS] || modelId;
+    case 'google':
+      return VALID_GOOGLE_MODELS[modelId as keyof typeof VALID_GOOGLE_MODELS] || modelId;
+    case 'anthropic':
+      const anthropicDisplayNames: Record<string, string> = {
+        'claude-3-opus': 'Claude 3 Opus',
+        'claude-3-sonnet': 'Claude 3 Sonnet',
+        'claude-3-haiku': 'Claude 3 Haiku'
+      };
+      return anthropicDisplayNames[modelId] || modelId;
+    case 'mistral':
+      const mistralDisplayNames: Record<string, string> = {
+        'mistral-tiny': 'Mistral Tiny',
+        'mistral-small': 'Mistral Small',
+        'mistral-medium': 'Mistral Medium'
+      };
+      return mistralDisplayNames[modelId] || modelId;
+    case 'ollama':
+      const ollamaDisplayNames: Record<string, string> = {
+        'llama2': 'Llama 2',
+        'mistral': 'Mistral',
+        'codellama': 'Code Llama'
+      };
+      return ollamaDisplayNames[modelId] || modelId;
+    default:
+      return modelId;
+  }
+};
 
 export const chatApi = {
   async sendMessage(content: string, provider: Provider, options: ChatOptions): Promise<Message> {
@@ -33,8 +66,8 @@ export const chatApi = {
 
       switch (provider) {
         case 'openai':
-          if (!VALID_OPENAI_MODELS.includes(options.model)) {
-            throw new Error(`Unsupported OpenAI model. Please use one of: ${VALID_OPENAI_MODELS.join(', ')}`);
+          if (!Object.keys(VALID_OPENAI_MODELS).includes(options.model)) {
+            throw new Error(`Unsupported OpenAI model. Please use one of: ${Object.keys(VALID_OPENAI_MODELS).join(', ')}`);
           }
           response = options.stream 
             ? await streamOpenAIChat(content, options, apiKey, "https://api.openai.com/v1")
@@ -48,8 +81,8 @@ export const chatApi = {
           break;
 
         case 'google':
-          if (!VALID_GOOGLE_MODELS.includes(options.model)) {
-            throw new Error(`Unsupported Google model. Please use one of: ${VALID_GOOGLE_MODELS.join(', ')}`);
+          if (!Object.keys(VALID_GOOGLE_MODELS).includes(options.model)) {
+            throw new Error(`Unsupported Google model. Please use one of: ${Object.keys(VALID_GOOGLE_MODELS).join(', ')}`);
           }
           response = options.stream
             ? await streamGoogleChat(content, options, apiKey, "https://generativelanguage.googleapis.com/v1")
@@ -96,18 +129,15 @@ export const chatApi = {
       
       switch (provider) {
         case 'openai':
-          // Return only the supported models
-          models = VALID_OPENAI_MODELS;
+          models = Object.keys(VALID_OPENAI_MODELS);
           break;
 
         case 'anthropic':
-          // Anthropic doesn't have a models endpoint, return supported models
           models = ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'];
           break;
 
         case 'google':
-          // Return only the supported Google models
-          models = VALID_GOOGLE_MODELS;
+          models = Object.keys(VALID_GOOGLE_MODELS);
           break;
 
         case 'mistral':
@@ -131,7 +161,9 @@ export const chatApi = {
           break;
       }
 
-      console.log(`Fetched models for ${provider}:`, models);
+      // Convert model IDs to display names
+      const displayModels = models.map(modelId => getModelDisplayName(provider, modelId));
+      console.log(`Fetched models for ${provider}:`, displayModels);
       return models;
     } catch (error) {
       console.error("Error fetching models:", error);
@@ -139,4 +171,3 @@ export const chatApi = {
     }
   }
 };
-
