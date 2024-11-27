@@ -6,9 +6,10 @@ import { useToast } from "@/components/ui/use-toast";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
+  disabled?: boolean;
 }
 
-export const ChatInput = ({ onSend }: ChatInputProps) => {
+export const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
   const [message, setMessage] = useState("");
   const { toast } = useToast();
 
@@ -28,7 +29,7 @@ export const ChatInput = ({ onSend }: ChatInputProps) => {
   return (
     <div className="border-t p-4 bg-white">
       <div className="flex gap-2 max-w-3xl mx-auto">
-        <Button variant="outline" size="icon" className="shrink-0">
+        <Button variant="outline" size="icon" className="shrink-0" disabled={disabled}>
           <Plus className="h-4 w-4" />
         </Button>
         <Input
@@ -41,11 +42,13 @@ export const ChatInput = ({ onSend }: ChatInputProps) => {
               handleSend();
             }
           }}
+          disabled={disabled}
           className="flex-1 bg-white border-input text-foreground placeholder:text-muted focus:ring-primary"
         />
         <Button 
           onClick={handleSend} 
           size="icon"
+          disabled={disabled}
           className="bg-primary hover:bg-primary/90 text-white shrink-0"
         >
           <Send className="h-4 w-4" />

@@ -1,30 +1,44 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChatMessage } from "@/components/ChatMessage";
 import { ChatInput } from "@/components/ChatInput";
 import { Sidebar } from "@/components/Sidebar";
-
-interface ChatMessage {
-  content: string;
-  isUser: boolean;
-}
+import { chatService, ChatResponse } from "@/services/chatService";
+import { toast } from "sonner";
 
 const Index = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>([
+  const [messages, setMessages] = useState<ChatResponse[]>([
     { content: "Hello! How can I help you today?", isUser: false }
   ]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSendMessage = (message: string) => {
-    const userMessage: ChatMessage = { content: message, isUser: true };
-    setMessages(prev => [...prev, userMessage]);
+  useEffect(() => {
+    // Check for API key on component mount
+    const apiKey = chatService.getApiKey();
+    if (!apiKey) {
+      toast.error("Please set your OpenAI API key to start chatting");
+    }
+  }, []);
 
-    const botMessage: ChatMessage = {
-      content: "This is a demo response. The AI integration will be implemented later.",
-      isUser: false
-    };
-    setTimeout(() => {
-      setMessages(prev => [...prev, botMessage]);
-    }, 1000);
+  const handleSendMessage = async (message: string) => {
+    try {
+      setIsLoading(true);
+      console.log("Sending message:", message);
+      
+      // Add user message immediately
+      const userMessage: ChatResponse = { content: message, isUser: true };
+      setMessages(prev => [...prev, userMessage]);
+
+      // Get AI response
+      const response = await chatService.sendMessage(message);
+      console.log("Received response:", response);
+      
+      setMessages(prev => [...prev, response]);
+    } catch (error) {
+      console.error("Error sending message:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -40,7 +54,7 @@ const Index = () => {
           </div>
         </ScrollArea>
 
-        <ChatInput onSend={handleSendMessage} />
+        <ChatInput onSend={handleSendMessage} disabled={isLoading} />
       </div>
     </div>
   );
