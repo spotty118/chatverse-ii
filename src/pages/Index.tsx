@@ -30,12 +30,16 @@ const Index = () => {
     if (enabledProviders.length === 0) {
       toast.error("Please configure at least one AI provider to start chatting");
     }
+
+    // Log initial state
+    console.log("Initial provider configs:", configs);
+    console.log("Enabled providers:", enabledProviders);
   }, []);
 
   const handleSendMessage = async (content: string) => {
     try {
       setIsLoading(true);
-      console.log("Sending message:", content);
+      console.log("Sending message:", { content, provider: selectedProvider, model: selectedModel });
       
       // Add user message immediately
       const userMessage: Message = {
@@ -43,17 +47,41 @@ const Index = () => {
         content,
         isUser: true,
         timestamp: Date.now(),
-        provider: selectedProvider
+        provider: selectedProvider,
+        model: selectedModel
       };
       setMessages(prev => [...prev, userMessage]);
 
+      // Add pending AI message
+      const pendingMessage: Message = {
+        id: uuidv4(),
+        content: "",
+        isUser: false,
+        timestamp: Date.now(),
+        provider: selectedProvider,
+        model: selectedModel,
+        pending: true
+      };
+      setMessages(prev => [...prev, pendingMessage]);
+
       // Get AI response
-      const response = await chatService.sendMessage(content, selectedProvider, selectedModel);
-      console.log("Received response:", response);
+      const response = await chatService.sendMessage(content, selectedProvider, {
+        model: selectedModel,
+        temperature: 0.7,
+        maxTokens: 2048
+      });
       
-      setMessages(prev => [...prev, response]);
+      // Replace pending message with actual response
+      setMessages(prev => prev.map(msg => 
+        msg.id === pendingMessage.id ? response : msg
+      ));
+
+      console.log("Chat response:", response);
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error("Error in chat:", error);
+      // Remove pending message and add error message
+      setMessages(prev => prev.filter(msg => msg.id !== pendingMessage?.id));
+      toast.error("Failed to get response. Please try again.");
     } finally {
       setIsLoading(false);
     }

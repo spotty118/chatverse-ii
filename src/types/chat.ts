@@ -11,6 +11,9 @@ export interface Message {
   isUser: boolean;
   timestamp: number;
   provider?: Provider;
+  model?: string;
+  error?: string;
+  pending?: boolean;
 }
 
 export interface ProviderConfig {
@@ -18,4 +21,13 @@ export interface ProviderConfig {
   apiKey?: string;
   models: string[];
   isEnabled: boolean;
+  baseUrl?: string;
+  customHeaders?: Record<string, string>;
+}
+
+export interface ChatOptions {
+  model: string;
+  temperature?: number;
+  maxTokens?: number;
+  systemPrompt?: string;
 }
