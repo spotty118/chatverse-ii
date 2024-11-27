@@ -35,6 +35,25 @@ class ChatService {
     localStorage.setItem(`${provider}_api_key`, key);
   }
 
+  async fetchModels(provider: Provider): Promise<string[]> {
+    console.log(`Fetching models for ${provider}`);
+    const apiKey = localStorage.getItem(`${provider}_api_key`);
+    
+    if (!apiKey) {
+      console.log(`No API key found for ${provider}`);
+      return [];
+    }
+
+    try {
+      const models = await chatApi.getModels(provider);
+      console.log(`Fetched models for ${provider}:`, models);
+      return models;
+    } catch (error) {
+      console.error(`Error fetching models for ${provider}:`, error);
+      throw error;
+    }
+  }
+
   async sendMessage(
     content: string,
     provider: Provider,

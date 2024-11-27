@@ -1,9 +1,9 @@
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 import { Provider } from '@/types/chat';
 import { Button } from '@/components/ui/button';
-import { Trash2, Settings } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { chatApi } from '@/services/api/chatApi';
+import { Trash2 } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { chatService } from '@/services/chatService';
 
 interface SidebarProps {
   onProviderSelect: Dispatch<SetStateAction<Provider>>;
@@ -20,16 +20,27 @@ export const Sidebar = ({
   selectedModel,
   onClearChat 
 }: SidebarProps) => {
+  const queryClient = useQueryClient();
+
   // Fetch models for the selected provider
   const { data: models = [] } = useQuery({
     queryKey: ['models', selectedProvider],
-    queryFn: () => chatApi.getModels(selectedProvider),
+    queryFn: () => chatService.fetchModels(selectedProvider),
+    enabled: !!localStorage.getItem(`${selectedProvider}_api_key`),
     meta: {
       onError: (error: Error) => {
         console.error("Error fetching models:", error);
       }
     }
   });
+
+  // Effect to handle provider changes and model selection
+  useEffect(() => {
+    if (models.length > 0 && !selectedModel) {
+      console.log("Setting initial model:", models[0]);
+      onModelSelect(models[0]);
+    }
+  }, [models, selectedModel, onModelSelect]);
 
   const providers: { id: Provider; name: string; icon: string }[] = [
     { id: 'openai', name: 'OpenAI', icon: '🤖' },
@@ -38,6 +49,21 @@ export const Sidebar = ({
     { id: 'mistral', name: 'Mistral', icon: '🌪️' },
     { id: 'ollama', name: 'Ollama', icon: '🦙' }
   ];
+
+  const handleProviderSelect = async (provider: Provider) => {
+    console.log("Selected provider:", provider);
+    onProviderSelect(provider);
+    
+    // Reset model selection
+    onModelSelect('');
+    
+    // If API key exists, trigger a model fetch
+    const apiKey = localStorage.getItem(`${provider}_api_key`);
+    if (apiKey) {
+      console.log(`Fetching models for ${provider} with existing API key`);
+      await queryClient.invalidateQueries({ queryKey: ['models', provider] });
+    }
+  };
 
   return (
     <div className="w-64 bg-sidebar-bg text-foreground p-4 flex flex-col h-screen">
@@ -52,14 +78,7 @@ export const Sidebar = ({
           {providers.map((provider) => (
             <button
               key={provider.id}
-              onClick={() => {
-                console.log("Selected provider:", provider.id);
-                onProviderSelect(provider.id);
-                // Reset model selection when changing provider
-                if (models.length > 0) {
-                  onModelSelect(models[0]);
-                }
-              }}
+              onClick={() => handleProviderSelect(provider.id)}
               className={`w-full text-left px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2
                 ${selectedProvider === provider.id 
                   ? 'bg-model-hover text-chat-blue' 

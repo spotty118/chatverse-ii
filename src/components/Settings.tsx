@@ -17,10 +17,19 @@ export const Settings = () => {
     ollama: localStorage.getItem('ollama_api_key') || ''
   });
 
-  const handleSave = (provider: Provider, key: string) => {
+  const handleSave = async (provider: Provider, key: string) => {
+    console.log(`Saving API key for ${provider}`);
     chatService.setApiKey(provider, key);
     setKeys(prev => ({ ...prev, [provider]: key }));
-    toast.success(`${provider} API key saved successfully`);
+    
+    try {
+      // Trigger a model fetch when saving a new API key
+      await chatService.fetchModels(provider);
+      toast.success(`${provider} API key saved successfully`);
+    } catch (error) {
+      console.error(`Error fetching models for ${provider}:`, error);
+      toast.error(`Failed to validate ${provider} API key`);
+    }
   };
 
   return (
