@@ -36,6 +36,8 @@ export async function streamGoogleChat(
   baseUrl: string,
   onChunk?: (chunk: string) => void
 ): Promise<string> {
+  console.log("Starting Google AI stream chat");
+  
   const response = await fetch(`${baseUrl}/models/${options.model}:streamGenerateContent?key=${apiKey}`, {
     method: "POST",
     headers: {
@@ -58,6 +60,7 @@ export async function streamGoogleChat(
   const reader = response.body?.getReader();
   const decoder = new TextDecoder();
   let fullContent = "";
+  let buffer = "";
 
   if (!reader) {
     throw new Error("Failed to initialize stream reader");
@@ -68,21 +71,41 @@ export async function streamGoogleChat(
       const { done, value } = await reader.read();
       if (done) break;
 
-      const chunk = decoder.decode(value);
+      const chunk = decoder.decode(value, { stream: true });
+      buffer += chunk;
+      
+      // Try to parse complete JSON objects from the buffer
       try {
-        const parsed = JSON.parse(chunk);
-        const content = parsed.candidates[0]?.content?.parts[0]?.text || '';
-        if (content) {
-          onChunk?.(content);
-          fullContent += content;
+        // Find complete JSON objects in the buffer
+        const lines = buffer.split('\n').filter(line => line.trim());
+        
+        for (const line of lines) {
+          try {
+            const parsed = JSON.parse(line);
+            if (parsed.candidates?.[0]?.content?.parts?.[0]?.text) {
+              const content = parsed.candidates[0].content.parts[0].text;
+              console.log("Received content chunk:", content);
+              onChunk?.(content);
+              fullContent += content;
+            }
+          } catch (e) {
+            console.log("Incomplete JSON chunk, continuing...");
+            continue;
+          }
         }
+        
+        // Clear the buffer after processing
+        buffer = "";
       } catch (e) {
-        console.error('Error parsing streaming response:', e);
+        console.log("Error processing chunk, continuing...");
+        // Keep the buffer for the next iteration
+        continue;
       }
     }
   } finally {
     reader.releaseLock();
   }
 
+  console.log("Stream completed, full content:", fullContent);
   return fullContent;
 }
