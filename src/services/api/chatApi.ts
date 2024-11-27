@@ -21,10 +21,6 @@ export const chatApi = {
 
       switch (provider) {
         case 'openai':
-          // Validate model is one of the supported ones
-          if (!['gpt-4o', 'gpt-4o-mini', 'gpt-4-01-preview', 'gpt-4-turbo-preview'].includes(options.model)) {
-            throw new Error('Unsupported OpenAI model. Please use gpt-4o, gpt-4o-mini, gpt-4-01-preview, or gpt-4-turbo-preview.');
-          }
           response = options.stream 
             ? await streamOpenAIChat(content, options, apiKey, "https://api.openai.com/v1")
             : await handleOpenAIChat(content, options, apiKey, "https://api.openai.com/v1");
@@ -83,8 +79,17 @@ export const chatApi = {
       
       switch (provider) {
         case 'openai':
-          // Return only the supported models
-          models = ['gpt-4o', 'gpt-4o-mini', 'gpt-4-01-preview', 'gpt-4-turbo-preview'];
+          response = await fetch("https://api.openai.com/v1/models", {
+            headers: {
+              "Authorization": `Bearer ${apiKey}`
+            }
+          });
+          if (response.ok) {
+            const data = await response.json();
+            models = data.data
+              .filter((model: any) => model.id.startsWith('gpt'))
+              .map((model: any) => model.id);
+          }
           break;
 
         case 'anthropic':
