@@ -12,20 +12,9 @@ class ChatService {
   };
 
   private subscribers: ((state: ChatState) => void)[] = [];
-  private apiKeys: Record<Provider, string> = {
-    openai: '',
-    anthropic: '',
-    google: '',
-    mistral: '',
-    ollama: ''
-  };
 
   constructor() {
-    const savedMessages = localStorage.getItem('chat_messages');
-    if (savedMessages) {
-      this.state.messages = JSON.parse(savedMessages);
-    }
-    console.log("ChatService initialized with messages:", this.state.messages);
+    console.log("ChatService initialized");
   }
 
   subscribe(callback: (state: ChatState) => void) {
@@ -35,22 +24,15 @@ class ChatService {
     };
   }
 
-  setApiKey(provider: Provider, key: string) {
-    this.apiKeys[provider] = key;
-    localStorage.setItem(`${provider}_api_key`, key);
-    console.log(`API key set for provider: ${provider}`);
-  }
-
   private updateState(newState: Partial<ChatState>) {
     this.state = { ...this.state, ...newState };
     this.subscribers.forEach(callback => callback(this.state));
-    localStorage.setItem('chat_messages', JSON.stringify(this.state.messages));
     console.log("State updated:", this.state);
   }
 
   async sendMessage(
     content: string,
-    provider: Provider = 'openai',
+    provider: Provider,
     options: ChatOptions
   ): Promise<Message> {
     console.log("Sending message:", { content, provider, options });
@@ -122,10 +104,13 @@ class ChatService {
     }
   }
 
+  async getModels(provider: Provider): Promise<string[]> {
+    return chatApi.getModels(provider);
+  }
+
   clearMessages() {
     console.log("Clearing all messages");
     this.updateState({ messages: [] });
-    localStorage.removeItem('chat_messages');
     toast.success("Chat history cleared");
   }
 

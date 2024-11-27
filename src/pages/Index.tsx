@@ -1,5 +1,5 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ChatMessage } from "@/components/ChatMessage";
 import { ChatInput } from "@/components/ChatInput";
 import { Sidebar } from "@/components/Sidebar";
@@ -8,7 +8,6 @@ import { configService } from "@/services/configService";
 import { toast } from "sonner";
 import { Message, Provider, ChatState } from "@/types/chat";
 import { useQuery } from "@tanstack/react-query";
-import { chatApi } from "@/services/api/chatApi";
 
 const Index = () => {
   const [chatState, setChatState] = useState<ChatState>({
@@ -18,12 +17,13 @@ const Index = () => {
   });
   
   const [selectedProvider, setSelectedProvider] = useState<Provider>('openai');
-  const [selectedModel, setSelectedModel] = useState('gpt-4o');
+  const [selectedModel, setSelectedModel] = useState('');
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   // Fetch available models for the selected provider
   const { data: models } = useQuery({
     queryKey: ['models', selectedProvider],
-    queryFn: () => chatApi.getModels(selectedProvider),
+    queryFn: () => chatService.getModels(selectedProvider),
     meta: {
       onError: (error: Error) => {
         console.error("Error fetching models:", error);
@@ -35,22 +35,6 @@ const Index = () => {
   useEffect(() => {
     console.log("Initializing chat component");
     
-    // Load existing messages
-    const messages = chatService.getMessages();
-    setChatState(prev => ({ ...prev, messages }));
-
-    // Subscribe to chat service updates
-    const unsubscribe = chatService.subscribe((state) => {
-      console.log("Chat state updated:", state);
-      setChatState(state);
-      
-      // Scroll to bottom on new messages
-      const chatContainer = document.querySelector('.chat-scroll-area');
-      if (chatContainer) {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      }
-    });
-
     // Check for provider configurations
     const configs = configService.getProviderConfigs();
     const enabledProviders = configs.filter(c => c.isEnabled);
@@ -59,14 +43,37 @@ const Index = () => {
       toast.error("Please configure at least one AI provider to start chatting");
     }
 
+    // Subscribe to chat service updates
+    const unsubscribe = chatService.subscribe((state) => {
+      console.log("Chat state updated:", state);
+      setChatState(state);
+      
+      // Scroll to bottom on new messages
+      if (scrollAreaRef.current) {
+        scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+      }
+    });
+
     return () => {
       console.log("Cleaning up chat component");
       unsubscribe();
     };
   }, []);
 
+  // Set initial model when models are loaded
+  useEffect(() => {
+    if (models?.length && !selectedModel) {
+      setSelectedModel(models[0]);
+    }
+  }, [models, selectedModel]);
+
   const handleSendMessage = async (content: string) => {
     console.log("Handling send message:", content);
+    
+    if (!selectedModel) {
+      toast.error("Please select a model first");
+      return;
+    }
     
     try {
       await chatService.sendMessage(content, selectedProvider, {
@@ -86,10 +93,15 @@ const Index = () => {
     chatService.clearMessages();
   };
 
+  const handleProviderSelect = (provider: Provider) => {
+    setSelectedProvider(provider);
+    setChatState(prev => ({ ...prev, messages: [] })); // Clear messages when changing provider
+  };
+
   return (
     <div className="flex h-screen bg-white">
       <Sidebar 
-        onProviderSelect={setSelectedProvider}
+        onProviderSelect={handleProviderSelect}
         onModelSelect={setSelectedModel}
         selectedProvider={selectedProvider}
         selectedModel={selectedModel}
@@ -97,7 +109,7 @@ const Index = () => {
       />
       
       <div className="flex-1 flex flex-col">
-        <ScrollArea className="flex-1 p-4 chat-scroll-area">
+        <ScrollArea className="flex-1 p-4 chat-scroll-area" ref={scrollAreaRef}>
           <div className="space-y-4 max-w-3xl mx-auto">
             {chatState.messages.map((msg) => (
               <ChatMessage 

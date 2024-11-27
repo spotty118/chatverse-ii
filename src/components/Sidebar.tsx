@@ -1,7 +1,9 @@
 import { Dispatch, SetStateAction } from 'react';
 import { Provider } from '@/types/chat';
 import { Button } from '@/components/ui/button';
-import { Trash2, Circle, Settings } from 'lucide-react';
+import { Trash2, Settings } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { chatApi } from '@/services/api/chatApi';
 
 interface SidebarProps {
   onProviderSelect: Dispatch<SetStateAction<Provider>>;
@@ -14,20 +16,27 @@ interface SidebarProps {
 export const Sidebar = ({ 
   onProviderSelect, 
   onModelSelect, 
+  selectedProvider,
   selectedModel,
   onClearChat 
 }: SidebarProps) => {
-  const models = [
-    { name: "All-In-One", icon: "🤖" },
-    { name: "GPT-4o", provider: "openai" },
-    { name: "GPT-4o mini", provider: "openai" },
-    { name: "GPT-4 Turbo", provider: "openai" },
-    { name: "o1-mini", provider: "google" },
-    { name: "GPT-3.5", provider: "openai" },
-    { name: "Claude 3.5 Sonnet", provider: "anthropic" },
-    { name: "Claude 3.5 Haiku", provider: "anthropic" },
-    { name: "Claude 3 Opus", provider: "anthropic" },
-    { name: "Claude 3 Haiku", provider: "anthropic" },
+  // Fetch models for the selected provider
+  const { data: models = [] } = useQuery({
+    queryKey: ['models', selectedProvider],
+    queryFn: () => chatApi.getModels(selectedProvider),
+    meta: {
+      onError: (error: Error) => {
+        console.error("Error fetching models:", error);
+      }
+    }
+  });
+
+  const providers: { id: Provider; name: string; icon: string }[] = [
+    { id: 'openai', name: 'OpenAI', icon: '🤖' },
+    { id: 'anthropic', name: 'Anthropic', icon: '🧠' },
+    { id: 'google', name: 'Google AI', icon: '🌐' },
+    { id: 'mistral', name: 'Mistral', icon: '🌪️' },
+    { id: 'ollama', name: 'Ollama', icon: '🦙' }
   ];
 
   return (
@@ -37,30 +46,53 @@ export const Sidebar = ({
         <span className="font-semibold text-xl">Chat Hub</span>
       </div>
       
-      <div className="space-y-2 flex-1 overflow-y-auto">
-        {models.map((model) => (
-          <button
-            key={model.name}
-            onClick={() => {
-              if (model.provider) {
-                onProviderSelect(model.provider as Provider);
-              }
-              onModelSelect(model.name);
-            }}
-            className={`w-full text-left px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2
-              ${selectedModel === model.name 
-                ? 'bg-model-hover text-chat-blue' 
-                : 'hover:bg-model-hover'
-              }`}
-          >
-            {model.icon ? (
-              <span>{model.icon}</span>
-            ) : (
-              <Circle className="h-4 w-4" />
-            )}
-            <span className="text-sm">{model.name}</span>
-          </button>
-        ))}
+      <div className="space-y-4 flex-1 overflow-y-auto">
+        <div className="space-y-2">
+          <h3 className="text-sm font-medium text-muted-foreground px-4">Providers</h3>
+          {providers.map((provider) => (
+            <button
+              key={provider.id}
+              onClick={() => {
+                console.log("Selected provider:", provider.id);
+                onProviderSelect(provider.id);
+                // Reset model selection when changing provider
+                if (models.length > 0) {
+                  onModelSelect(models[0]);
+                }
+              }}
+              className={`w-full text-left px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2
+                ${selectedProvider === provider.id 
+                  ? 'bg-model-hover text-chat-blue' 
+                  : 'hover:bg-model-hover'
+                }`}
+            >
+              <span>{provider.icon}</span>
+              <span className="text-sm">{provider.name}</span>
+            </button>
+          ))}
+        </div>
+
+        {models.length > 0 && (
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-muted-foreground px-4">Models</h3>
+            {models.map((model) => (
+              <button
+                key={model}
+                onClick={() => {
+                  console.log("Selected model:", model);
+                  onModelSelect(model);
+                }}
+                className={`w-full text-left px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2
+                  ${selectedModel === model 
+                    ? 'bg-model-hover text-chat-blue' 
+                    : 'hover:bg-model-hover'
+                  }`}
+              >
+                <span className="text-sm">{model}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <Button
