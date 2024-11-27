@@ -23,7 +23,11 @@ export const chatApi = {
       case 'openai':
         return VALID_OPENAI_MODELS[modelId as keyof typeof VALID_OPENAI_MODELS] || modelId;
       case 'google':
-        return VALID_GOOGLE_MODELS[modelId as keyof typeof VALID_GOOGLE_MODELS] || modelId;
+        const googleDisplayNames: Record<string, string> = {
+          'gemini-1.5-pro': 'Gemini-1.5-Pro',
+          'gemini-1.5-flash': 'Gemini-1.5-Flash'
+        };
+        return googleDisplayNames[modelId] || modelId;
       case 'anthropic':
         const anthropicDisplayNames: Record<string, string> = {
           'claude-3-opus': 'Claude 3 Opus',
@@ -139,7 +143,7 @@ export const chatApi = {
       
       switch (provider) {
         case 'openai':
-          modelIds = Object.keys(VALID_OPENAI_MODELS);
+          modelIds = ['gpt-4o', 'gpt-4o-mini'];
           break;
 
         case 'anthropic':
@@ -147,7 +151,7 @@ export const chatApi = {
           break;
 
         case 'google':
-          modelIds = Object.keys(VALID_GOOGLE_MODELS);
+          modelIds = ['gemini-1.5-pro', 'gemini-1.5-flash'];
           break;
 
         case 'mistral':

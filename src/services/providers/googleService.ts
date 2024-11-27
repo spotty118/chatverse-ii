@@ -6,7 +6,11 @@ export async function handleGoogleChat(
   apiKey: string,
   baseUrl: string
 ): Promise<string> {
-  const response = await fetch(`${baseUrl}/models/${options.model}:generateContent?key=${apiKey}`, {
+  const url = `${baseUrl || 'https://generativelanguage.googleapis.com/v1'}/models/${options.model}:generateContent?key=${apiKey}`;
+  
+  console.log("Making Google AI request to:", url);
+  
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -38,7 +42,9 @@ export async function streamGoogleChat(
 ): Promise<string> {
   console.log("Starting Google AI stream request");
   
-  const response = await fetch(`${baseUrl}/models/${options.model}:streamGenerateContent?key=${apiKey}`, {
+  const url = `${baseUrl || 'https://generativelanguage.googleapis.com/v1'}/models/${options.model}:streamGenerateContent?key=${apiKey}`;
+  
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
