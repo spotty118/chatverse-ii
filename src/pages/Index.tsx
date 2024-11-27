@@ -41,19 +41,19 @@ const Index = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#1A1F2C]">
+    <div className="flex h-screen bg-background">
       {/* Sidebar */}
-      <div className="w-64 border-r border-[#2A2F3C] p-4 hidden md:block">
-        <h2 className="font-semibold mb-4 text-[#9b87f5]">Chat History</h2>
+      <div className="w-64 border-r border-border p-4 hidden md:block">
+        <h2 className="font-semibold mb-4 text-primary">Chat History</h2>
         <div className="space-y-2">
-          <div className="p-2 hover:bg-[#2A2F3C] rounded-lg cursor-pointer text-gray-300 transition-colors">
+          <div className="p-2 hover:bg-secondary rounded-lg cursor-pointer text-foreground/70 transition-colors">
             New Chat
           </div>
         </div>
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col bg-[#1A1F2C]">
+      <div className="flex-1 flex flex-col">
         {/* Chat Messages */}
         <ScrollArea className="flex-1 p-4">
           <div className="space-y-4">
@@ -62,8 +62,8 @@ const Index = () => {
                 key={index}
                 className={`${
                   msg.isUser 
-                    ? "ml-auto bg-[#9b87f5] text-white" 
-                    : "bg-[#2A2F3C] text-gray-200"
+                    ? "ml-auto bg-primary text-white" 
+                    : "bg-secondary text-foreground/90"
                 } rounded-lg p-4 max-w-[80%] animate-fade-in`}
               >
                 {msg.content}
@@ -73,7 +73,7 @@ const Index = () => {
         </ScrollArea>
 
         {/* Input Area */}
-        <div className="border-t border-[#2A2F3C] p-4 bg-[#1A1F2C]">
+        <div className="border-t border-border p-4">
           <div className="flex gap-2 max-w-4xl mx-auto">
             <Input
               placeholder="Type a message..."
@@ -85,12 +85,12 @@ const Index = () => {
                   handleSend();
                 }
               }}
-              className="flex-1 bg-[#2A2F3C] border-[#3A3F4C] text-gray-200 placeholder:text-gray-400 focus:ring-[#9b87f5]"
+              className="flex-1 bg-secondary border-input text-foreground placeholder:text-foreground/50 focus:ring-primary"
             />
             <Button 
               onClick={handleSend} 
               size="icon"
-              className="bg-[#9b87f5] hover:bg-[#8b77e5] text-white"
+              className="bg-primary hover:bg-primary/90 text-white"
             >
               <Send className="h-4 w-4" />
             </Button>
