@@ -50,8 +50,8 @@ export const chatApi = {
     }
   },
 
-  async sendMessage(content: string, provider: Provider, options: ChatOptions): Promise<Message> {
-    console.log("Sending message to API:", { content, provider, options });
+  async sendMessage(content: string, provider: Provider, options: ChatOptions & { baseUrl?: string }): Promise<Message> {
+    console.log("Sending API message:", { content, provider, options });
     
     const apiKey = localStorage.getItem(`${provider}_api_key`);
     if (!apiKey) {
@@ -60,38 +60,34 @@ export const chatApi = {
 
     try {
       let response: string;
+      const baseUrl = options.baseUrl || this.getDefaultBaseUrl(provider);
+      console.log(`Using base URL: ${baseUrl}`);
 
       switch (provider) {
         case 'openai':
-          if (!Object.keys(VALID_OPENAI_MODELS).includes(options.model)) {
-            throw new Error(`Unsupported OpenAI model. Please use one of: ${Object.keys(VALID_OPENAI_MODELS).join(', ')}`);
-          }
           response = options.stream 
-            ? await streamOpenAIChat(content, options, apiKey, "https://api.openai.com/v1")
-            : await handleOpenAIChat(content, options, apiKey, "https://api.openai.com/v1");
+            ? await streamOpenAIChat(content, options, apiKey, baseUrl)
+            : await handleOpenAIChat(content, options, apiKey, baseUrl);
           break;
 
         case 'anthropic':
           response = options.stream
-            ? await streamAnthropicChat(content, options, apiKey, "https://api.anthropic.com/v1")
-            : await handleAnthropicChat(content, options, apiKey, "https://api.anthropic.com/v1");
+            ? await streamAnthropicChat(content, options, apiKey, baseUrl)
+            : await handleAnthropicChat(content, options, apiKey, baseUrl);
           break;
 
         case 'google':
-          if (!Object.keys(VALID_GOOGLE_MODELS).includes(options.model)) {
-            throw new Error(`Unsupported Google model. Please use one of: ${Object.keys(VALID_GOOGLE_MODELS).join(', ')}`);
-          }
           response = options.stream
-            ? await streamGoogleChat(content, options, apiKey, "https://generativelanguage.googleapis.com/v1")
-            : await handleGoogleChat(content, options, apiKey, "https://generativelanguage.googleapis.com/v1");
+            ? await streamGoogleChat(content, options, apiKey, baseUrl)
+            : await handleGoogleChat(content, options, apiKey, baseUrl);
           break;
 
         case 'mistral':
-          response = await handleMistralChat(content, options, apiKey, "https://api.mistral.ai/v1");
+          response = await handleMistralChat(content, options, apiKey, baseUrl);
           break;
 
         case 'ollama':
-          response = await handleOllamaChat(content, options, "http://localhost:11434");
+          response = await handleOllamaChat(content, options, baseUrl);
           break;
 
         default:
@@ -109,6 +105,23 @@ export const chatApi = {
     } catch (error) {
       console.error("API Error:", error);
       throw error;
+    }
+  },
+
+  getDefaultBaseUrl(provider: Provider): string {
+    switch (provider) {
+      case 'openai':
+        return 'https://api.openai.com/v1';
+      case 'anthropic':
+        return 'https://api.anthropic.com/v1';
+      case 'google':
+        return 'https://generativelanguage.googleapis.com/v1';
+      case 'mistral':
+        return 'https://api.mistral.ai/v1';
+      case 'ollama':
+        return 'http://localhost:11434';
+      default:
+        throw new Error(`No default base URL for provider: ${provider}`);
     }
   },
 

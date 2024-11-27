@@ -10,11 +10,25 @@ class ChatService {
     context: "",
     streaming: false
   };
-
+  private baseUrl: string = '';
   private subscribers: ((state: ChatState) => void)[] = [];
 
   constructor() {
     console.log("ChatService initialized");
+    // Initialize baseUrl from localStorage if Cloudflare is enabled
+    const useCloudflare = localStorage.getItem('use_cloudflare') === 'true';
+    if (useCloudflare) {
+      this.baseUrl = localStorage.getItem('cloudflare_url') || '';
+    }
+  }
+
+  setBaseUrl(url: string) {
+    console.log("Setting base URL:", url);
+    this.baseUrl = url;
+  }
+
+  getBaseUrl(): string {
+    return this.baseUrl;
   }
 
   subscribe(callback: (state: ChatState) => void) {
@@ -35,25 +49,6 @@ class ChatService {
     localStorage.setItem(`${provider}_api_key`, key);
   }
 
-  async fetchModels(provider: Provider): Promise<string[]> {
-    console.log(`Fetching models for ${provider}`);
-    const apiKey = localStorage.getItem(`${provider}_api_key`);
-    
-    if (!apiKey) {
-      console.log(`No API key found for ${provider}`);
-      return [];
-    }
-
-    try {
-      const models = await chatApi.getModels(provider);
-      console.log(`Fetched models for ${provider}:`, models);
-      return models;
-    } catch (error) {
-      console.error(`Error fetching models for ${provider}:`, error);
-      throw error;
-    }
-  }
-
   async sendMessage(
     content: string,
     provider: Provider,
@@ -62,10 +57,8 @@ class ChatService {
     console.log("Sending message:", { content, provider, options });
     
     try {
-      // Set streaming state first
       this.updateState({ streaming: true });
 
-      // Create user message
       const userMessage: Message = {
         id: uuidv4(),
         content,
@@ -75,7 +68,6 @@ class ChatService {
         model: options.model
       };
 
-      // Create pending assistant message
       const pendingMessage: Message = {
         id: uuidv4(),
         content: "",
@@ -86,15 +78,16 @@ class ChatService {
         pending: true
       };
 
-      // Update state with both messages at once to prevent multiple renders
       this.updateState({
         messages: [...this.state.messages, userMessage, pendingMessage]
       });
 
-      // Send message to API
-      const response = await chatApi.sendMessage(content, provider, options);
+      // Pass the baseUrl to chatApi for optional Cloudflare routing
+      const response = await chatApi.sendMessage(content, provider, {
+        ...options,
+        baseUrl: this.baseUrl
+      });
 
-      // Update pending message with response
       const updatedMessages = this.state.messages.map(msg => 
         msg.id === pendingMessage.id ? { ...response, id: msg.id } : msg
       );
@@ -108,7 +101,6 @@ class ChatService {
     } catch (error) {
       console.error("Error sending message:", error);
       
-      // Remove only the pending message on error
       const messagesWithoutPending = this.state.messages.filter(
         msg => msg.pending !== true
       );
