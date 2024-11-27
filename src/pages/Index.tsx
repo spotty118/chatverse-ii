@@ -7,8 +7,6 @@ import { chatService } from "@/services/chatService";
 import { configService } from "@/services/configService";
 import { toast } from "sonner";
 import { Message, Provider, ChatState } from "@/types/chat";
-import { useQuery } from "@tanstack/react-query";
-import { chatApi } from "@/services/api/chatApi";
 
 const Index = () => {
   const [chatState, setChatState] = useState<ChatState>({
@@ -19,18 +17,6 @@ const Index = () => {
   
   const [selectedProvider, setSelectedProvider] = useState<Provider>('openai');
   const [selectedModel, setSelectedModel] = useState('gpt-4o');
-
-  // Fetch available models for the selected provider
-  const { data: models } = useQuery({
-    queryKey: ['models', selectedProvider],
-    queryFn: () => chatApi.getModels(selectedProvider),
-    meta: {
-      onError: (error: Error) => {
-        console.error("Error fetching models:", error);
-        toast.error("Failed to load available models");
-      }
-    }
-  });
 
   useEffect(() => {
     console.log("Initializing chat component");
