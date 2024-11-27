@@ -26,11 +26,9 @@ const Index = () => {
       return;
     }
 
-    // Add user message
     const userMessage: ChatMessage = { content: message, isUser: true };
     setMessages(prev => [...prev, userMessage]);
 
-    // Simulate response (you can replace this with actual API call later)
     const botMessage: ChatMessage = {
       content: "This is a demo response. The AI integration will be implemented later.",
       isUser: false
@@ -43,19 +41,19 @@ const Index = () => {
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-[#1A1F2C]">
       {/* Sidebar */}
-      <div className="w-64 border-r border-border p-4 hidden md:block">
-        <h2 className="font-semibold mb-4">Chat History</h2>
+      <div className="w-64 border-r border-[#2A2F3C] p-4 hidden md:block">
+        <h2 className="font-semibold mb-4 text-[#9b87f5]">Chat History</h2>
         <div className="space-y-2">
-          <div className="p-2 hover:bg-accent rounded-lg cursor-pointer">
+          <div className="p-2 hover:bg-[#2A2F3C] rounded-lg cursor-pointer text-gray-300 transition-colors">
             New Chat
           </div>
         </div>
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col bg-[#1A1F2C]">
         {/* Chat Messages */}
         <ScrollArea className="flex-1 p-4">
           <div className="space-y-4">
@@ -63,8 +61,10 @@ const Index = () => {
               <div
                 key={index}
                 className={`${
-                  msg.isUser ? "ml-auto bg-primary text-primary-foreground" : "bg-accent"
-                } rounded-lg p-4 max-w-[80%]`}
+                  msg.isUser 
+                    ? "ml-auto bg-[#9b87f5] text-white" 
+                    : "bg-[#2A2F3C] text-gray-200"
+                } rounded-lg p-4 max-w-[80%] animate-fade-in`}
               >
                 {msg.content}
               </div>
@@ -73,8 +73,8 @@ const Index = () => {
         </ScrollArea>
 
         {/* Input Area */}
-        <div className="border-t border-border p-4">
-          <div className="flex gap-2">
+        <div className="border-t border-[#2A2F3C] p-4 bg-[#1A1F2C]">
+          <div className="flex gap-2 max-w-4xl mx-auto">
             <Input
               placeholder="Type a message..."
               value={message}
@@ -85,9 +85,13 @@ const Index = () => {
                   handleSend();
                 }
               }}
-              className="flex-1"
+              className="flex-1 bg-[#2A2F3C] border-[#3A3F4C] text-gray-200 placeholder:text-gray-400 focus:ring-[#9b87f5]"
             />
-            <Button onClick={handleSend} size="icon">
+            <Button 
+              onClick={handleSend} 
+              size="icon"
+              className="bg-[#9b87f5] hover:bg-[#8b77e5] text-white"
+            >
               <Send className="h-4 w-4" />
             </Button>
           </div>
