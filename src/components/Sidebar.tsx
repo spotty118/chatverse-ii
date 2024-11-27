@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { chatService } from '@/services/chatService';
+import { Settings } from './Settings';
 
 interface SidebarProps {
   onProviderSelect: Dispatch<SetStateAction<Provider>>;
@@ -67,9 +68,12 @@ export const Sidebar = ({
 
   return (
     <div className="w-64 bg-sidebar-bg text-foreground p-4 flex flex-col h-screen">
-      <div className="flex items-center gap-2 mb-6">
-        <img src="/placeholder.svg" alt="Logo" className="h-8 w-8" />
-        <span className="font-semibold text-xl">Chat Hub</span>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <img src="/placeholder.svg" alt="Logo" className="h-8 w-8" />
+          <span className="font-semibold text-xl">Chat Hub</span>
+        </div>
+        <Settings />
       </div>
       
       <div className="space-y-4 flex-1 overflow-y-auto">
