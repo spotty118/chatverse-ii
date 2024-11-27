@@ -1,13 +1,11 @@
 import { Message, Provider, ChatOptions } from "@/types/chat";
+import { handleOpenAIChat, streamOpenAIChat } from "../providers/openaiService";
+import { handleAnthropicChat, streamAnthropicChat } from "../providers/anthropicService";
+import { handleGoogleChat, streamGoogleChat } from "../providers/googleService";
+import { handleMistralChat } from "../providers/mistralService";
+import { handleOllamaChat } from "../providers/ollamaService";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
-
-// Helper to determine if a model is a chat model
-const isChatModel = (model: string): boolean => {
-  // Updated to include all chat model prefixes
-  const chatModelPrefixes = ['gpt-3.5', 'gpt-4', 'claude', 'gemini'];
-  return chatModelPrefixes.some(prefix => model.toLowerCase().startsWith(prefix.toLowerCase()));
-};
 
 export const chatApi = {
   async sendMessage(content: string, provider: Provider, options: ChatOptions): Promise<Message> {
@@ -20,61 +18,12 @@ export const chatApi = {
 
     try {
       let response: string;
-      const shouldUseChatEndpoint = options.useAttachmentModel || isChatModel(options.model);
-      console.log(`Using ${shouldUseChatEndpoint ? 'chat' : 'completion'} endpoint for model ${options.model}`);
 
       switch (provider) {
         case 'openai':
-          if (shouldUseChatEndpoint) {
-            const chatResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`
-              },
-              body: JSON.stringify({
-                model: options.model,
-                messages: [
-                  ...(options.systemPrompt ? [{ role: "system", content: options.systemPrompt }] : []),
-                  { role: "user", content }
-                ],
-                temperature: options.temperature || 0.7,
-                max_tokens: options.maxTokens || 2048,
-                stream: false
-              })
-            });
-
-            if (!chatResponse.ok) {
-              const error = await chatResponse.json();
-              throw new Error(error.error?.message || "Failed to get response from OpenAI");
-            }
-
-            const chatData = await chatResponse.json();
-            response = chatData.choices[0].message.content;
-          } else {
-            const completionResponse = await fetch("https://api.openai.com/v1/completions", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`
-              },
-              body: JSON.stringify({
-                model: options.model,
-                prompt: content,
-                temperature: options.temperature || 0.7,
-                max_tokens: options.maxTokens || 2048,
-                stream: false
-              })
-            });
-
-            if (!completionResponse.ok) {
-              const error = await completionResponse.json();
-              throw new Error(error.error?.message || "Failed to get response from OpenAI");
-            }
-
-            const completionData = await completionResponse.json();
-            response = completionData.choices[0].text;
-          }
+          response = options.stream 
+            ? await streamOpenAIChat(content, options, apiKey, "https://api.openai.com/v1")
+            : await handleOpenAIChat(content, options, apiKey, "https://api.openai.com/v1");
           break;
 
         case 'anthropic':
@@ -144,6 +93,7 @@ export const chatApi = {
           break;
 
         case 'anthropic':
+          // Anthropic doesn't have a models endpoint, return supported models
           models = ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'];
           break;
 

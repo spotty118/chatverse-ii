@@ -6,47 +6,31 @@ export async function handleOpenAIChat(
   apiKey: string,
   baseUrl: string
 ): Promise<string> {
-  console.log("Starting OpenAI request with model:", options.model);
-
-  const endpoint = options.useAttachmentModel ? "chat/completions" : "completions";
-  
-  const requestBody = options.useAttachmentModel ? {
-    model: options.model,
-    messages: [
-      ...(options.systemPrompt ? [{ role: "system", content: options.systemPrompt }] : []),
-      { role: "user", content }
-    ],
-    temperature: options.temperature || 0.7,
-    max_tokens: options.maxTokens || 2048,
-    stream: false
-  } : {
-    model: options.model,
-    prompt: content,
-    temperature: options.temperature || 0.7,
-    max_tokens: options.maxTokens || 2048,
-    stream: false
-  };
-
-  const response = await fetch(`${baseUrl}/${endpoint}`, {
+  const response = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`,
-      "OpenAI-Beta": "assistants=v1"
+      "Authorization": `Bearer ${apiKey}`
     },
-    body: JSON.stringify(requestBody)
+    body: JSON.stringify({
+      model: options.model,
+      messages: [
+        ...(options.systemPrompt ? [{ role: "system", content: options.systemPrompt }] : []),
+        { role: "user", content }
+      ],
+      temperature: options.temperature || 0.7,
+      max_tokens: options.maxTokens || 2048,
+      stream: false
+    })
   });
 
   if (!response.ok) {
     const error = await response.json();
-    console.error("OpenAI API error:", error);
     throw new Error(error.error?.message || "Failed to get response from OpenAI");
   }
 
   const data = await response.json();
-  return options.useAttachmentModel 
-    ? data.choices[0].message.content
-    : data.choices[0].text;
+  return data.choices[0].message.content;
 }
 
 export async function streamOpenAIChat(
@@ -56,35 +40,22 @@ export async function streamOpenAIChat(
   baseUrl: string,
   onChunk?: (chunk: string) => void
 ): Promise<string> {
-  console.log("Starting OpenAI streaming with model:", options.model);
-  
-  const endpoint = options.useAttachmentModel ? "chat/completions" : "completions";
-  
-  const requestBody = options.useAttachmentModel ? {
-    model: options.model,
-    messages: [
-      ...(options.systemPrompt ? [{ role: "system", content: options.systemPrompt }] : []),
-      { role: "user", content }
-    ],
-    temperature: options.temperature || 0.7,
-    max_tokens: options.maxTokens || 2048,
-    stream: true
-  } : {
-    model: options.model,
-    prompt: content,
-    temperature: options.temperature || 0.7,
-    max_tokens: options.maxTokens || 2048,
-    stream: true
-  };
-
-  const response = await fetch(`${baseUrl}/${endpoint}`, {
+  const response = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`,
-      "OpenAI-Beta": "assistants=v1"
+      "Authorization": `Bearer ${apiKey}`
     },
-    body: JSON.stringify(requestBody)
+    body: JSON.stringify({
+      model: options.model,
+      messages: [
+        ...(options.systemPrompt ? [{ role: "system", content: options.systemPrompt }] : []),
+        { role: "user", content }
+      ],
+      temperature: options.temperature || 0.7,
+      max_tokens: options.maxTokens || 2048,
+      stream: true
+    })
   });
 
   if (!response.ok) {
@@ -115,10 +86,7 @@ export async function streamOpenAIChat(
 
           try {
             const parsed = JSON.parse(data);
-            const content = options.useAttachmentModel
-              ? parsed.choices[0]?.delta?.content || ''
-              : parsed.choices[0]?.text || '';
-              
+            const content = parsed.choices[0]?.delta?.content || '';
             if (content) {
               onChunk?.(content);
               fullContent += content;

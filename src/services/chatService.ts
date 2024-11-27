@@ -12,7 +12,6 @@ class ChatService {
   };
 
   private subscribers: ((state: ChatState) => void)[] = [];
-  private messageInProgress = false;
 
   constructor() {
     console.log("ChatService initialized");
@@ -62,13 +61,8 @@ class ChatService {
   ): Promise<Message> {
     console.log("Sending message:", { content, provider, options });
     
-    if (this.messageInProgress) {
-      console.log("Message already in progress, ignoring duplicate request");
-      return Promise.reject(new Error("Message already in progress"));
-    }
-    
     try {
-      this.messageInProgress = true;
+      // Set streaming state first
       this.updateState({ streaming: true });
 
       // Create user message
@@ -92,7 +86,7 @@ class ChatService {
         pending: true
       };
 
-      // Update state with both messages at once
+      // Update state with both messages at once to prevent multiple renders
       this.updateState({
         messages: [...this.state.messages, userMessage, pendingMessage]
       });
@@ -125,8 +119,6 @@ class ChatService {
       });
 
       throw error;
-    } finally {
-      this.messageInProgress = false;
     }
   }
 

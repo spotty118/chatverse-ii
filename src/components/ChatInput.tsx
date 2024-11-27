@@ -5,13 +5,12 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
 interface ChatInputProps {
-  onSend: (message: string, useAttachmentModel: boolean) => void;
+  onSend: (message: string) => void;
   disabled?: boolean;
 }
 
 export const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
   const [message, setMessage] = useState("");
-  const [useAttachmentModel, setUseAttachmentModel] = useState(false);
   const { toast } = useToast();
 
   const handleSend = () => {
@@ -23,17 +22,8 @@ export const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
       return;
     }
 
-    onSend(message, useAttachmentModel);
+    onSend(message);
     setMessage("");
-    setUseAttachmentModel(false);
-  };
-
-  const handleAttachmentClick = () => {
-    setUseAttachmentModel(true);
-    toast({
-      title: "Attachment mode enabled",
-      description: "Using model with attachment support"
-    });
   };
 
   return (
@@ -59,9 +49,8 @@ export const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
           <Button 
             variant="ghost" 
             size="icon" 
-            className={`h-10 w-10 ${useAttachmentModel ? 'bg-blue-100' : ''}`}
+            className="h-10 w-10"
             disabled={disabled}
-            onClick={handleAttachmentClick}
           >
             <Paperclip className="h-4 w-4" />
           </Button>

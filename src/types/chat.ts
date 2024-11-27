@@ -14,8 +14,8 @@ export interface Message {
   model?: string;
   error?: string;
   pending?: boolean;
-  parentId?: string;
-  context?: string;
+  parentId?: string; // For threading
+  context?: string; // For maintaining context
   metadata?: {
     tokens?: number;
     processingTime?: number;
@@ -42,7 +42,6 @@ export interface ChatOptions {
   stream?: boolean;
   functions?: ChatFunction[];
   context?: string;
-  useAttachmentModel?: boolean;
 }
 
 export interface ChatFunction {
