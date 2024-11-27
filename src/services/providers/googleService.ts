@@ -14,8 +14,8 @@ export async function handleGoogleChat(
     body: JSON.stringify({
       contents: [{ parts: [{ text: content }] }],
       generationConfig: {
-        temperature: options.temperature,
-        maxOutputTokens: options.maxTokens
+        temperature: options.temperature || 0.7,
+        maxOutputTokens: options.maxTokens || 2048
       }
     })
   });
@@ -34,7 +34,7 @@ export async function streamGoogleChat(
   options: ChatOptions,
   apiKey: string,
   baseUrl: string,
-  onChunk: (chunk: string) => void
+  onChunk?: (chunk: string) => void
 ): Promise<string> {
   const response = await fetch(`${baseUrl}/models/${options.model}:streamGenerateContent?key=${apiKey}`, {
     method: "POST",
@@ -44,8 +44,8 @@ export async function streamGoogleChat(
     body: JSON.stringify({
       contents: [{ parts: [{ text: content }] }],
       generationConfig: {
-        temperature: options.temperature,
-        maxOutputTokens: options.maxTokens
+        temperature: options.temperature || 0.7,
+        maxOutputTokens: options.maxTokens || 2048
       }
     })
   });
@@ -73,7 +73,7 @@ export async function streamGoogleChat(
         const parsed = JSON.parse(chunk);
         const content = parsed.candidates[0]?.content?.parts[0]?.text || '';
         if (content) {
-          onChunk(content);
+          onChunk?.(content);
           fullContent += content;
         }
       } catch (e) {

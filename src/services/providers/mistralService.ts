@@ -1,4 +1,11 @@
-export async function handleMistralChat(content: string, options: any, apiKey: string, baseUrl: string): Promise<string> {
+import { ChatOptions } from "@/types/chat";
+
+export async function handleMistralChat(
+  content: string,
+  options: ChatOptions,
+  apiKey: string,
+  baseUrl: string
+): Promise<string> {
   const response = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
     headers: {
@@ -8,8 +15,8 @@ export async function handleMistralChat(content: string, options: any, apiKey: s
     body: JSON.stringify({
       model: options.model,
       messages: [{ role: "user", content }],
-      temperature: options.temperature,
-      max_tokens: options.maxTokens
+      temperature: options.temperature || 0.7,
+      max_tokens: options.maxTokens || 2048
     })
   });
 

@@ -16,8 +16,8 @@ export async function handleAnthropicChat(
     body: JSON.stringify({
       model: options.model,
       messages: [{ role: "user", content }],
-      max_tokens: options.maxTokens || 1024,
-      temperature: options.temperature
+      max_tokens: options.maxTokens || 2048,
+      temperature: options.temperature || 0.7
     })
   });
 
@@ -35,7 +35,7 @@ export async function streamAnthropicChat(
   options: ChatOptions,
   apiKey: string,
   baseUrl: string,
-  onChunk: (chunk: string) => void
+  onChunk?: (chunk: string) => void
 ): Promise<string> {
   const response = await fetch(`${baseUrl}/messages`, {
     method: "POST",
@@ -47,8 +47,8 @@ export async function streamAnthropicChat(
     body: JSON.stringify({
       model: options.model,
       messages: [{ role: "user", content }],
-      max_tokens: options.maxTokens || 1024,
-      temperature: options.temperature,
+      max_tokens: options.maxTokens || 2048,
+      temperature: options.temperature || 0.7,
       stream: true
     })
   });
@@ -83,7 +83,7 @@ export async function streamAnthropicChat(
             const parsed = JSON.parse(data);
             const content = parsed.delta?.text || '';
             if (content) {
-              onChunk(content);
+              onChunk?.(content);
               fullContent += content;
             }
           } catch (e) {

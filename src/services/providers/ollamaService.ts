@@ -1,4 +1,10 @@
-export async function handleOllamaChat(content: string, options: any, baseUrl: string): Promise<string> {
+import { ChatOptions } from "@/types/chat";
+
+export async function handleOllamaChat(
+  content: string,
+  options: ChatOptions,
+  baseUrl: string
+): Promise<string> {
   const response = await fetch(`${baseUrl}/api/generate`, {
     method: "POST",
     headers: {
@@ -9,8 +15,8 @@ export async function handleOllamaChat(content: string, options: any, baseUrl: s
       prompt: content,
       stream: false,
       options: {
-        temperature: options.temperature,
-        num_predict: options.maxTokens
+        temperature: options.temperature || 0.7,
+        num_predict: options.maxTokens || 2048
       }
     })
   });

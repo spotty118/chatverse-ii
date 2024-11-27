@@ -1,9 +1,9 @@
 import { ChatOptions } from "@/types/chat";
 
 export async function handleOpenAIChat(
-  content: string, 
-  options: ChatOptions, 
-  apiKey: string, 
+  content: string,
+  options: ChatOptions,
+  apiKey: string,
   baseUrl: string
 ): Promise<string> {
   const response = await fetch(`${baseUrl}/chat/completions`, {
@@ -19,9 +19,8 @@ export async function handleOpenAIChat(
         { role: "user", content }
       ],
       temperature: options.temperature || 0.7,
-      max_tokens: options.maxTokens,
-      stream: false,
-      ...(options.functions ? { functions: options.functions } : {})
+      max_tokens: options.maxTokens || 2048,
+      stream: false
     })
   });
 
@@ -39,7 +38,7 @@ export async function streamOpenAIChat(
   options: ChatOptions,
   apiKey: string,
   baseUrl: string,
-  onChunk: (chunk: string) => void
+  onChunk?: (chunk: string) => void
 ): Promise<string> {
   const response = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
@@ -54,7 +53,7 @@ export async function streamOpenAIChat(
         { role: "user", content }
       ],
       temperature: options.temperature || 0.7,
-      max_tokens: options.maxTokens,
+      max_tokens: options.maxTokens || 2048,
       stream: true
     })
   });
@@ -89,7 +88,7 @@ export async function streamOpenAIChat(
             const parsed = JSON.parse(data);
             const content = parsed.choices[0]?.delta?.content || '';
             if (content) {
-              onChunk(content);
+              onChunk?.(content);
               fullContent += content;
             }
           } catch (e) {
