@@ -5,8 +5,6 @@ import { handleGoogleChat, streamGoogleChat } from "../providers/googleService";
 import { handleMistralChat } from "../providers/mistralService";
 import { handleOllamaChat } from "../providers/ollamaService";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
-
 export const chatApi = {
   async sendMessage(content: string, provider: Provider, options: ChatOptions): Promise<Message> {
     console.log("Sending message to API:", { content, provider, options });
@@ -34,8 +32,8 @@ export const chatApi = {
 
         case 'google':
           response = options.stream 
-            ? await streamGoogleChat(content, options, apiKey, "https://generativelanguage.googleapis.com/v1") 
-            : await handleGoogleChat(content, options, apiKey, "https://generativelanguage.googleapis.com/v1");
+            ? await streamGoogleChat(content, options, apiKey, "https://generativelanguage.googleapis.com/v1beta") 
+            : await handleGoogleChat(content, options, apiKey, "https://generativelanguage.googleapis.com/v1beta");
           break;
 
         case 'mistral':
@@ -89,11 +87,13 @@ export const chatApi = {
           return ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'];
 
         case 'google':
-          // Only officially supported Google Gemini models
-          return [
-            'gemini-pro',
-            'gemini-pro-vision'
-          ];
+          // Use beta endpoint for Google AI models
+          response = await fetch("https://generativelanguage.googleapis.com/v1beta/models", {
+            headers: {
+              "Authorization": `Bearer ${apiKey}`
+            }
+          });
+          break;
 
         case 'mistral':
           response = await fetch("https://api.mistral.ai/v1/models", {
@@ -125,6 +125,11 @@ export const chatApi = {
             .filter((model: any) => model.id.startsWith('gpt'))
             .map((model: any) => model.id);
         
+        case 'google':
+          return data.models
+            .filter((model: any) => model.name.includes('gemini'))
+            .map((model: any) => model.name.split('/').pop());
+        
         case 'mistral':
           return data.data.map((model: any) => model.id);
         
@@ -143,14 +148,11 @@ export const chatApi = {
   getDefaultModels(provider: Provider): string[] {
     switch (provider) {
       case 'openai':
-        return ['gpt-4o', 'gpt-4o-mini', 'gpt-3.5'];
+        return ['gpt-4', 'gpt-3.5-turbo'];
       case 'anthropic':
         return ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'];
       case 'google':
-        return [
-          'gemini-pro',
-          'gemini-pro-vision'
-        ];
+        return ['gemini-pro', 'gemini-pro-vision'];
       case 'mistral':
         return ['mistral-tiny', 'mistral-small', 'mistral-medium'];
       case 'ollama':
