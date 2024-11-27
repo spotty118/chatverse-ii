@@ -11,15 +11,16 @@ class ChatService {
     streaming: false
   };
   private baseUrl: string = '';
+  private googleBaseUrl: string = '';
   private subscribers: ((state: ChatState) => void)[] = [];
 
   constructor() {
     console.log("ChatService initialized");
-    // Initialize baseUrl from localStorage if Cloudflare is enabled
     const useCloudflare = localStorage.getItem('use_cloudflare') === 'true';
     if (useCloudflare) {
       this.baseUrl = localStorage.getItem('cloudflare_url') || '';
     }
+    this.googleBaseUrl = localStorage.getItem('google_url') || '';
   }
 
   setBaseUrl(url: string) {
@@ -27,7 +28,15 @@ class ChatService {
     this.baseUrl = url;
   }
 
-  getBaseUrl(): string {
+  setGoogleBaseUrl(url: string) {
+    console.log("Setting Google base URL:", url);
+    this.googleBaseUrl = url;
+  }
+
+  getBaseUrl(provider?: Provider): string {
+    if (provider === 'google' && this.googleBaseUrl) {
+      return this.googleBaseUrl;
+    }
     return this.baseUrl;
   }
 
@@ -82,10 +91,9 @@ class ChatService {
         messages: [...this.state.messages, userMessage, pendingMessage]
       });
 
-      // Pass the baseUrl to chatApi for optional Cloudflare routing
       const response = await chatApi.sendMessage(content, provider, {
         ...options,
-        baseUrl: this.baseUrl
+        baseUrl: this.getBaseUrl(provider)
       });
 
       const updatedMessages = this.state.messages.map(msg => 

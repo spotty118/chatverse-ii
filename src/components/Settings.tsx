@@ -62,10 +62,8 @@ export const Settings = () => {
   const handleGoogleUrlSave = () => {
     console.log('Saving Google URL:', googleUrl);
     localStorage.setItem('google_url', googleUrl);
-    if (googleUrl) {
-      chatService.setBaseUrl(googleUrl);
-      toast.success('Google API URL updated');
-    }
+    chatService.setGoogleBaseUrl(googleUrl);
+    toast.success('Google API URL updated');
   };
 
   return (
