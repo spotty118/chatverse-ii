@@ -60,7 +60,7 @@ export async function streamGoogleChat(
   const reader = response.body?.getReader();
   const decoder = new TextDecoder();
   let fullContent = "";
-  let partialLine = "";
+  let buffer = "";
 
   if (!reader) {
     throw new Error("Failed to initialize stream reader");
@@ -71,46 +71,34 @@ export async function streamGoogleChat(
       const { done, value } = await reader.read();
       if (done) break;
 
-      // Decode the chunk and add it to any partial line from previous iterations
       const chunk = decoder.decode(value, { stream: true });
-      partialLine += chunk;
+      buffer += chunk;
 
-      // Split on newlines to process complete lines
-      const lines = partialLine.split('\n');
+      // Try to find complete JSON objects
+      let startBracket = buffer.indexOf("[");
+      let endBracket = buffer.indexOf("]", startBracket);
       
-      // The last line might be incomplete, save it for the next iteration
-      partialLine = lines.pop() || "";
-
-      for (const line of lines) {
-        if (!line.trim()) continue;
-
+      while (startBracket !== -1 && endBracket !== -1) {
         try {
-          const parsed = JSON.parse(line);
-          if (parsed.candidates?.[0]?.content?.parts?.[0]?.text) {
-            const content = parsed.candidates[0].content.parts[0].text;
+          const jsonStr = buffer.substring(startBracket, endBracket + 1);
+          const parsed = JSON.parse(jsonStr);
+          
+          if (Array.isArray(parsed) && parsed[0]?.candidates?.[0]?.content?.parts?.[0]?.text) {
+            const content = parsed[0].candidates[0].content.parts[0].text;
             console.log("Received content chunk:", content);
             onChunk?.(content);
             fullContent += content;
           }
+          
+          // Remove processed part from buffer
+          buffer = buffer.substring(endBracket + 1);
+          startBracket = buffer.indexOf("[");
+          endBracket = buffer.indexOf("]", startBracket);
         } catch (e) {
-          console.log("Error parsing line:", line);
-          console.log("Parse error:", e);
-          continue;
+          // If we can't parse, move to next possible JSON object
+          startBracket = buffer.indexOf("[", startBracket + 1);
+          endBracket = buffer.indexOf("]", startBracket);
         }
-      }
-    }
-
-    // Process any remaining partial line
-    if (partialLine.trim()) {
-      try {
-        const parsed = JSON.parse(partialLine);
-        if (parsed.candidates?.[0]?.content?.parts?.[0]?.text) {
-          const content = parsed.candidates[0].content.parts[0].text;
-          onChunk?.(content);
-          fullContent += content;
-        }
-      } catch (e) {
-        console.log("Error parsing final line:", partialLine);
       }
     }
   } finally {
