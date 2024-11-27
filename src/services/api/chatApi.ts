@@ -5,8 +5,6 @@ import { handleGoogleChat, streamGoogleChat } from "../providers/googleService";
 import { handleMistralChat } from "../providers/mistralService";
 import { handleOllamaChat } from "../providers/ollamaService";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
-
 // Define valid OpenAI models with display names
 const VALID_OPENAI_MODELS = {
   'gpt-4o': 'GPT-4 Opus',
@@ -124,19 +122,19 @@ export const chatApi = {
     }
 
     try {
-      let models: string[] = [];
+      let modelIds: string[] = [];
       
       switch (provider) {
         case 'openai':
-          models = Object.keys(VALID_OPENAI_MODELS);
+          modelIds = Object.keys(VALID_OPENAI_MODELS);
           break;
 
         case 'anthropic':
-          models = ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'];
+          modelIds = ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'];
           break;
 
         case 'google':
-          models = Object.keys(VALID_GOOGLE_MODELS);
+          modelIds = Object.keys(VALID_GOOGLE_MODELS);
           break;
 
         case 'mistral':
@@ -147,7 +145,7 @@ export const chatApi = {
           });
           if (mistralResponse.ok) {
             const data = await mistralResponse.json();
-            models = data.data.map((model: any) => model.id);
+            modelIds = data.data.map((model: any) => model.id);
           }
           break;
 
@@ -155,15 +153,13 @@ export const chatApi = {
           const ollamaResponse = await fetch("http://localhost:11434/api/tags");
           if (ollamaResponse.ok) {
             const data = await ollamaResponse.json();
-            models = data.models || [];
+            modelIds = data.models || [];
           }
           break;
       }
 
-      // Convert model IDs to display names
-      const displayModels = models.map(modelId => this.getModelDisplayName(provider, modelId));
-      console.log(`Fetched models for ${provider}:`, displayModels);
-      return models;
+      console.log(`Fetched models for ${provider}:`, modelIds);
+      return modelIds;
     } catch (error) {
       console.error("Error fetching models:", error);
       return [];
