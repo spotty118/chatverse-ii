@@ -7,8 +7,8 @@ import { handleOllamaChat } from "../providers/ollamaService";
 
 // Define valid OpenAI models with display names
 const VALID_OPENAI_MODELS = {
-  'gpt-4o': 'gpt-4o',
-  'gpt-4o-mini': 'gpt-4o-mini'
+  'gpt-4o': 'GPT-4o',
+  'gpt-4o-mini': 'GPT-4o-mini'
 };
 
 // Define valid Google models with display names
