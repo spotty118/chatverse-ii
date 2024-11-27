@@ -19,40 +19,39 @@ const VALID_GOOGLE_MODELS = {
   'gemini-1.5-flash': 'Gemini-1.5-Flash'
 };
 
-// Helper function to get display name
-const getModelDisplayName = (provider: Provider, modelId: string): string => {
-  switch (provider) {
-    case 'openai':
-      return VALID_OPENAI_MODELS[modelId as keyof typeof VALID_OPENAI_MODELS] || modelId;
-    case 'google':
-      return VALID_GOOGLE_MODELS[modelId as keyof typeof VALID_GOOGLE_MODELS] || modelId;
-    case 'anthropic':
-      const anthropicDisplayNames: Record<string, string> = {
-        'claude-3-opus': 'Claude 3 Opus',
-        'claude-3-sonnet': 'Claude 3 Sonnet',
-        'claude-3-haiku': 'Claude 3 Haiku'
-      };
-      return anthropicDisplayNames[modelId] || modelId;
-    case 'mistral':
-      const mistralDisplayNames: Record<string, string> = {
-        'mistral-tiny': 'Mistral Tiny',
-        'mistral-small': 'Mistral Small',
-        'mistral-medium': 'Mistral Medium'
-      };
-      return mistralDisplayNames[modelId] || modelId;
-    case 'ollama':
-      const ollamaDisplayNames: Record<string, string> = {
-        'llama2': 'Llama 2',
-        'mistral': 'Mistral',
-        'codellama': 'Code Llama'
-      };
-      return ollamaDisplayNames[modelId] || modelId;
-    default:
-      return modelId;
-  }
-};
-
 export const chatApi = {
+  getModelDisplayName(provider: Provider, modelId: string): string {
+    switch (provider) {
+      case 'openai':
+        return VALID_OPENAI_MODELS[modelId as keyof typeof VALID_OPENAI_MODELS] || modelId;
+      case 'google':
+        return VALID_GOOGLE_MODELS[modelId as keyof typeof VALID_GOOGLE_MODELS] || modelId;
+      case 'anthropic':
+        const anthropicDisplayNames: Record<string, string> = {
+          'claude-3-opus': 'Claude 3 Opus',
+          'claude-3-sonnet': 'Claude 3 Sonnet',
+          'claude-3-haiku': 'Claude 3 Haiku'
+        };
+        return anthropicDisplayNames[modelId] || modelId;
+      case 'mistral':
+        const mistralDisplayNames: Record<string, string> = {
+          'mistral-tiny': 'Mistral Tiny',
+          'mistral-small': 'Mistral Small',
+          'mistral-medium': 'Mistral Medium'
+        };
+        return mistralDisplayNames[modelId] || modelId;
+      case 'ollama':
+        const ollamaDisplayNames: Record<string, string> = {
+          'llama2': 'Llama 2',
+          'mistral': 'Mistral',
+          'codellama': 'Code Llama'
+        };
+        return ollamaDisplayNames[modelId] || modelId;
+      default:
+        return modelId;
+    }
+  },
+
   async sendMessage(content: string, provider: Provider, options: ChatOptions): Promise<Message> {
     console.log("Sending message to API:", { content, provider, options });
     
@@ -162,7 +161,7 @@ export const chatApi = {
       }
 
       // Convert model IDs to display names
-      const displayModels = models.map(modelId => getModelDisplayName(provider, modelId));
+      const displayModels = models.map(modelId => this.getModelDisplayName(provider, modelId));
       console.log(`Fetched models for ${provider}:`, displayModels);
       return models;
     } catch (error) {

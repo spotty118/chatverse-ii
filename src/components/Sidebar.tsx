@@ -5,6 +5,7 @@ import { Trash2 } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { chatService } from '@/services/chatService';
 import { Settings } from './Settings';
+import { chatApi } from '@/services/api/chatApi';
 
 interface SidebarProps {
   onProviderSelect: Dispatch<SetStateAction<Provider>>;
@@ -111,7 +112,7 @@ export const Sidebar = ({
                     : 'hover:bg-model-hover'
                   }`}
               >
-                <span className="text-sm">{model}</span>
+                <span className="text-sm">{chatApi.getModelDisplayName(selectedProvider, model)}</span>
               </button>
             ))}
           </div>
