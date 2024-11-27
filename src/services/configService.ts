@@ -28,7 +28,7 @@ class ConfigService {
     return [
       {
         name: 'openai',
-        models: ['gpt-4o', 'gpt-4o-mini'],
+        models: ['gpt-4', 'gpt-3.5-turbo'],
         isEnabled: true
       },
       {
