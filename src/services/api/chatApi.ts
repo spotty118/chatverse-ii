@@ -9,7 +9,9 @@ const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // Helper to determine if a model is a chat model
 const isChatModel = (model: string): boolean => {
-  return model.includes('gpt-') || model.includes('claude') || model.includes('gemini');
+  // Updated to include all chat model prefixes
+  const chatModelPrefixes = ['gpt-3.5', 'gpt-4', 'claude', 'gemini'];
+  return chatModelPrefixes.some(prefix => model.toLowerCase().startsWith(prefix.toLowerCase()));
 };
 
 export const chatApi = {
