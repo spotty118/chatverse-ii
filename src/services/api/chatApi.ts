@@ -33,9 +33,8 @@ export const chatApi = {
           break;
 
         case 'google':
-          response = options.stream
-            ? await streamGoogleChat(content, options, apiKey, "https://generativelanguage.googleapis.com/v1")
-            : await handleGoogleChat(content, options, apiKey, "https://generativelanguage.googleapis.com/v1");
+          // Disable streaming for Google as it requires different parsing
+          response = await handleGoogleChat(content, options, apiKey, "https://generativelanguage.googleapis.com/v1");
           break;
 
         case 'mistral':

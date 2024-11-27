@@ -43,7 +43,7 @@ export const Settings = () => {
         <DialogHeader>
           <DialogTitle>API Keys</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <form className="grid gap-4 py-4" onSubmit={(e) => e.preventDefault()}>
           <div className="space-y-4">
             {Object.entries(keys).map(([provider, key]) => (
               <div key={provider} className="grid grid-cols-4 items-center gap-4">
@@ -63,7 +63,7 @@ export const Settings = () => {
               </div>
             ))}
           </div>
-        </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
