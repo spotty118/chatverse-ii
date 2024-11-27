@@ -72,39 +72,40 @@ export async function streamGoogleChat(
       const { done, value } = await reader.read();
       if (done) break;
 
-      buffer += decoder.decode(value, { stream: true });
+      const text = decoder.decode(value, { stream: true });
+      buffer += text;
       
-      // Process complete chunks
-      const chunks = buffer.split('\n');
-      buffer = chunks.pop() || ""; // Keep the last incomplete chunk in buffer
+      // Split by newlines and process each complete chunk
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || ""; // Keep the incomplete chunk in buffer
       
-      for (const chunk of chunks) {
-        if (chunk.trim()) {
+      for (const line of lines) {
+        if (line.trim()) {
           try {
-            const data = JSON.parse(chunk);
-            if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
-              const content = data.candidates[0].content.parts[0].text;
-              onChunk?.(content);
-              fullContent += content;
+            const data = JSON.parse(line);
+            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text) {
+              onChunk?.(text);
+              fullContent += text;
             }
           } catch (e) {
-            console.log("Skipping invalid JSON chunk:", chunk);
+            console.log("Processing chunk:", line);
           }
         }
       }
     }
     
-    // Process any remaining data
-    if (buffer) {
+    // Process any remaining data in buffer
+    if (buffer.trim()) {
       try {
         const data = JSON.parse(buffer);
-        if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
-          const content = data.candidates[0].content.parts[0].text;
-          onChunk?.(content);
-          fullContent += content;
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) {
+          onChunk?.(text);
+          fullContent += text;
         }
       } catch (e) {
-        console.log("Skipping invalid final JSON chunk");
+        console.log("Processing final chunk:", buffer);
       }
     }
   } finally {
