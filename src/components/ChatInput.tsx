@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Send } from "lucide-react";
+import { Plus, Send, Image, Paperclip, Smile } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -27,16 +27,34 @@ export const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
   };
 
   return (
-    <div className="border-t p-4 bg-secondary">
-      <div className="flex gap-2 max-w-3xl mx-auto">
-        <Button 
-          variant="outline" 
-          size="icon" 
-          className="shrink-0 bg-white hover:bg-gray-50"
-          disabled={disabled}
-        >
-          <Plus className="h-4 w-4" />
-        </Button>
+    <div className="border-t p-4 bg-background">
+      <div className="flex gap-2 max-w-5xl mx-auto">
+        <div className="flex gap-1">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-10 w-10"
+            disabled={disabled}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-10 w-10"
+            disabled={disabled}
+          >
+            <Image className="h-4 w-4" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-10 w-10"
+            disabled={disabled}
+          >
+            <Paperclip className="h-4 w-4" />
+          </Button>
+        </div>
         <Input
           placeholder="Use / to select prompts, Shift+Enter to add new line"
           value={message}
@@ -48,15 +66,22 @@ export const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
             }
           }}
           disabled={disabled}
-          className="flex-1 bg-white border-input focus:ring-primary"
+          className="flex-1"
         />
         <Button 
-          onClick={handleSend} 
-          size="icon"
+          variant="ghost" 
+          size="icon" 
+          className="h-10 w-10"
           disabled={disabled}
-          className="bg-primary hover:bg-primary-hover text-white shrink-0"
         >
-          <Send className="h-4 w-4" />
+          <Smile className="h-4 w-4" />
+        </Button>
+        <Button 
+          onClick={handleSend} 
+          disabled={disabled}
+          className="bg-chat-blue hover:bg-chat-blue/90 text-white px-6"
+        >
+          Send
         </Button>
       </div>
     </div>
