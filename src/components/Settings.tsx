@@ -20,7 +20,6 @@ export const Settings = () => {
   });
   const [useCloudflare, setUseCloudflare] = useState(localStorage.getItem('use_cloudflare') === 'true');
   const [cloudflareUrl, setCloudflareUrl] = useState(localStorage.getItem('cloudflare_url') || '');
-  const [googleUrl, setGoogleUrl] = useState(localStorage.getItem('google_url') || '');
 
   const handleSave = async (provider: Provider, key: string) => {
     console.log(`Saving API key for ${provider}`);
@@ -57,13 +56,6 @@ export const Settings = () => {
       chatService.setBaseUrl(cloudflareUrl);
       toast.success('Cloudflare AI Gateway URL updated');
     }
-  };
-
-  const handleGoogleUrlSave = () => {
-    console.log('Saving Google URL:', googleUrl);
-    localStorage.setItem('google_url', googleUrl);
-    chatService.setGoogleBaseUrl(googleUrl);
-    toast.success('Google API URL updated');
   };
 
   return (
@@ -103,21 +95,6 @@ export const Settings = () => {
               </div>
             </div>
           )}
-
-          <div className="grid grid-cols-4 items-center gap-4 mb-4">
-            <Label htmlFor="google-url" className="text-right">
-              Google URL:
-            </Label>
-            <div className="col-span-3">
-              <Input
-                id="google-url"
-                value={googleUrl}
-                onChange={(e) => setGoogleUrl(e.target.value)}
-                onBlur={handleGoogleUrlSave}
-                placeholder="Enter Google API URL"
-              />
-            </div>
-          </div>
 
           <div className="space-y-4">
             {Object.entries(keys).map(([provider, key]) => (

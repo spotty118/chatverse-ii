@@ -11,7 +11,6 @@ class ChatService {
     streaming: false
   };
   private baseUrl: string = '';
-  private googleBaseUrl: string = '';
   private subscribers: ((state: ChatState) => void)[] = [];
 
   constructor() {
@@ -20,7 +19,6 @@ class ChatService {
     if (useCloudflare) {
       this.baseUrl = localStorage.getItem('cloudflare_url') || '';
     }
-    this.googleBaseUrl = localStorage.getItem('google_url') || '';
   }
 
   setBaseUrl(url: string) {
@@ -28,15 +26,7 @@ class ChatService {
     this.baseUrl = url;
   }
 
-  setGoogleBaseUrl(url: string) {
-    console.log("Setting Google base URL:", url);
-    this.googleBaseUrl = url;
-  }
-
-  getBaseUrl(provider?: Provider): string {
-    if (provider === 'google' && this.googleBaseUrl) {
-      return this.googleBaseUrl;
-    }
+  getBaseUrl(): string {
     return this.baseUrl;
   }
 
@@ -93,7 +83,7 @@ class ChatService {
 
       const response = await chatApi.sendMessage(content, provider, {
         ...options,
-        baseUrl: this.getBaseUrl(provider)
+        baseUrl: this.baseUrl
       });
 
       const updatedMessages = this.state.messages.map(msg => 
