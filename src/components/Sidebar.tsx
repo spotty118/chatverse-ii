@@ -43,7 +43,7 @@ export const Sidebar = ({
             key={model.name}
             onClick={() => {
               if (model.provider) {
-                onProviderSelect(model.provider);
+                onProviderSelect(model.provider as Provider);
               }
               onModelSelect(model.name);
             }}
@@ -61,29 +61,6 @@ export const Sidebar = ({
             <span className="text-sm">{model.name}</span>
           </button>
         ))}
-      </div>
-
-      <div className="mt-4 bg-white rounded-lg p-4 space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium">FREE PLAN</span>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-            <Settings className="h-4 w-4" />
-          </Button>
-        </div>
-        <div className="space-y-1.5 text-sm text-muted">
-          <div className="flex justify-between">
-            <span>Basic</span>
-            <span>0/20</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Advanced</span>
-            <span>2/6</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Images</span>
-            <span>0/6</span>
-          </div>
-        </div>
       </div>
 
       <Button
