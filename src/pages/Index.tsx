@@ -52,7 +52,7 @@ const Index = () => {
       };
       setMessages(prev => [...prev, userMessage]);
 
-      // Add pending AI message
+      // Create pending message before the try-catch block
       const pendingMessage: Message = {
         id: uuidv4(),
         content: "",
@@ -62,6 +62,8 @@ const Index = () => {
         model: selectedModel,
         pending: true
       };
+      
+      // Add pending AI message
       setMessages(prev => [...prev, pendingMessage]);
 
       // Get AI response
@@ -79,8 +81,8 @@ const Index = () => {
       console.log("Chat response:", response);
     } catch (error) {
       console.error("Error in chat:", error);
-      // Remove pending message and add error message
-      setMessages(prev => prev.filter(msg => msg.id !== pendingMessage?.id));
+      // Remove pending message if it exists and add error message
+      setMessages(prev => prev.filter(msg => !msg.pending));
       toast.error("Failed to get response. Please try again.");
     } finally {
       setIsLoading(false);
@@ -104,6 +106,7 @@ const Index = () => {
                 key={msg.id} 
                 content={msg.content} 
                 isUser={msg.isUser} 
+                pending={msg.pending}
               />
             ))}
           </div>
