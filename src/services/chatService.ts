@@ -3,6 +3,13 @@ import { Message, Provider, ChatOptions } from "@/types/chat";
 import { configService } from "./configService";
 import { v4 as uuidv4 } from "uuid";
 
+// Split into smaller files for better organization
+import { handleOpenAIChat } from "./providers/openaiService";
+import { handleAnthropicChat } from "./providers/anthropicService";
+import { handleGoogleChat } from "./providers/googleService";
+import { handleMistralChat } from "./providers/mistralService";
+import { handleOllamaChat } from "./providers/ollamaService";
+
 class ChatService {
   private getApiKey(provider: Provider): string | null {
     return localStorage.getItem(`${provider}_api_key`);
@@ -10,7 +17,11 @@ class ChatService {
 
   private getBaseUrl(provider: Provider): string {
     const config = configService.getProviderConfigs().find(c => c.name === provider);
-    return config?.baseUrl || this.getDefaultBaseUrl(provider);
+    if (config?.baseUrl) {
+      // Ensure URL doesn't end with a colon
+      return config.baseUrl.replace(/:$/, '');
+    }
+    return this.getDefaultBaseUrl(provider);
   }
 
   private getDefaultBaseUrl(provider: Provider): string {
@@ -46,22 +57,24 @@ class ChatService {
 
     try {
       let response;
+      const baseUrl = this.getBaseUrl(provider);
+      console.log(`Using base URL for ${provider}:`, baseUrl);
       
       switch (provider) {
         case 'openai':
-          response = await this.sendOpenAIMessage(content, options, apiKey);
+          response = await handleOpenAIChat(content, options, apiKey, baseUrl);
           break;
         case 'anthropic':
-          response = await this.sendAnthropicMessage(content, options, apiKey);
+          response = await handleAnthropicChat(content, options, apiKey, baseUrl);
           break;
         case 'google':
-          response = await this.sendGoogleMessage(content, options, apiKey);
+          response = await handleGoogleChat(content, options, apiKey, baseUrl);
           break;
         case 'mistral':
-          response = await this.sendMistralMessage(content, options, apiKey);
+          response = await handleMistralChat(content, options, apiKey, baseUrl);
           break;
         case 'ollama':
-          response = await this.sendOllamaMessage(content, options);
+          response = await handleOllamaChat(content, options, baseUrl);
           break;
         default:
           throw new Error(`Unsupported provider: ${provider}`);
@@ -81,134 +94,6 @@ class ChatService {
       toast.error(`Failed to get response from ${provider}: ${errorMessage}`);
       throw error;
     }
-  }
-
-  private async sendOpenAIMessage(content: string, options: ChatOptions, apiKey: string): Promise<string> {
-    const baseUrl = this.getBaseUrl('openai');
-    const response = await fetch(`${baseUrl}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: options.model,
-        messages: [{ role: "user", content }],
-        temperature: options.temperature || 0.7,
-        max_tokens: options.maxTokens,
-        stream: false
-      })
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || "Failed to get response from OpenAI");
-    }
-
-    const data = await response.json();
-    return data.choices[0].message.content;
-  }
-
-  private async sendAnthropicMessage(content: string, options: ChatOptions, apiKey: string): Promise<string> {
-    const baseUrl = this.getBaseUrl('anthropic');
-    const response = await fetch(`${baseUrl}/messages`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01"
-      },
-      body: JSON.stringify({
-        model: options.model,
-        messages: [{ role: "user", content }],
-        max_tokens: options.maxTokens || 1024,
-        temperature: options.temperature
-      })
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || "Failed to get response from Anthropic");
-    }
-
-    const data = await response.json();
-    return data.content[0].text;
-  }
-
-  private async sendGoogleMessage(content: string, options: ChatOptions, apiKey: string): Promise<string> {
-    const baseUrl = this.getBaseUrl('google');
-    const response = await fetch(`${baseUrl}/models/${options.model}:generateContent?key=${apiKey}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: content }] }],
-        generationConfig: {
-          temperature: options.temperature,
-          maxOutputTokens: options.maxTokens
-        }
-      })
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || "Failed to get response from Google AI");
-    }
-
-    const data = await response.json();
-    return data.candidates[0].content.parts[0].text;
-  }
-
-  private async sendMistralMessage(content: string, options: ChatOptions, apiKey: string): Promise<string> {
-    const baseUrl = this.getBaseUrl('mistral');
-    const response = await fetch(`${baseUrl}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: options.model,
-        messages: [{ role: "user", content }],
-        temperature: options.temperature,
-        max_tokens: options.maxTokens
-      })
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || "Failed to get response from Mistral");
-    }
-
-    const data = await response.json();
-    return data.choices[0].message.content;
-  }
-
-  private async sendOllamaMessage(content: string, options: ChatOptions): Promise<string> {
-    const baseUrl = this.getBaseUrl('ollama');
-    const response = await fetch(`${baseUrl}/api/generate`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: options.model,
-        prompt: content,
-        stream: false,
-        options: {
-          temperature: options.temperature,
-          num_predict: options.maxTokens
-        }
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to get response from Ollama");
-    }
-
-    const data = await response.json();
-    return data.response;
   }
 
   setApiKey(provider: Provider, key: string) {
