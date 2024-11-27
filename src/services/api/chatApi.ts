@@ -7,6 +7,11 @@ import { handleOllamaChat } from "../providers/ollamaService";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
+// Helper to determine if a model is a chat model
+const isChatModel = (model: string): boolean => {
+  return model.includes('gpt-') || model.includes('claude') || model.includes('gemini');
+};
+
 export const chatApi = {
   async sendMessage(content: string, provider: Provider, options: ChatOptions): Promise<Message> {
     console.log("Sending message to API:", { content, provider, options });
@@ -18,12 +23,40 @@ export const chatApi = {
 
     try {
       let response: string;
+      const useChat = options.useAttachmentModel || isChatModel(options.model);
+      console.log(`Using ${useChat ? 'chat' : 'completion'} endpoint for model ${options.model}`);
 
       switch (provider) {
         case 'openai':
-          response = options.stream 
-            ? await streamOpenAIChat(content, options, apiKey, "https://api.openai.com/v1")
-            : await handleOpenAIChat(content, options, apiKey, "https://api.openai.com/v1");
+          if (useChat) {
+            response = options.stream 
+              ? await streamOpenAIChat(content, options, apiKey, "https://api.openai.com/v1")
+              : await handleOpenAIChat(content, options, apiKey, "https://api.openai.com/v1");
+          } else {
+            // Use completions endpoint for non-chat models
+            const completionResponse = await fetch("https://api.openai.com/v1/completions", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+              },
+              body: JSON.stringify({
+                model: options.model,
+                prompt: content,
+                temperature: options.temperature || 0.7,
+                max_tokens: options.maxTokens || 2048,
+                stream: false
+              })
+            });
+
+            if (!completionResponse.ok) {
+              const error = await completionResponse.json();
+              throw new Error(error.error?.message || "Failed to get response from OpenAI");
+            }
+
+            const data = await completionResponse.json();
+            response = data.choices[0].text;
+          }
           break;
 
         case 'anthropic':
