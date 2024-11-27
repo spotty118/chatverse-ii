@@ -18,14 +18,15 @@ export default {
     },
     extend: {
       colors: {
-        border: "#2A2F3C",
-        input: "#3A3F4C",
-        background: "#1A1F2C",
-        foreground: "#FFFFFF",
-        primary: "#9b87f5",
-        secondary: "#2A2F3C",
-        muted: "#6c7075",
-        accent: "#7E69AB",
+        border: "#e2e8f0",
+        input: "#f8fafc",
+        background: "#ffffff",
+        foreground: "#0f172a",
+        primary: "#4f46e5",
+        secondary: "#f1f5f9",
+        muted: "#64748b",
+        accent: "#818cf8",
+        sidebar: "#e8f3ff",
       },
       borderRadius: {
         lg: "0.5rem",

@@ -1,7 +1,7 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Send } from "lucide-react";
+import { Send, Plus } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -40,14 +40,52 @@ const Index = () => {
     setMessage("");
   };
 
+  const models = [
+    "All-In-One",
+    "GPT-4o",
+    "GPT-4o mini",
+    "GPT-4 Turbo",
+    "g1-mini",
+    "GPT-3.5",
+    "Claude 3.5 Sonnet",
+    "Claude 3.5 Haiku",
+    "Claude 3 Opus",
+  ];
+
   return (
     <div className="flex h-screen bg-background">
       {/* Sidebar */}
-      <div className="w-64 border-r border-border p-4 hidden md:block">
-        <h2 className="font-semibold mb-4 text-primary">Chat History</h2>
-        <div className="space-y-2">
-          <div className="p-2 hover:bg-secondary rounded-lg cursor-pointer text-foreground/70 transition-colors">
-            New Chat
+      <div className="w-64 bg-sidebar p-4">
+        <div className="flex items-center gap-2 mb-6">
+          <img src="/placeholder.svg" alt="Logo" className="h-8 w-8" />
+          <span className="font-semibold text-lg">ChatVerse II</span>
+        </div>
+        
+        <div className="space-y-1">
+          {models.map((model) => (
+            <button
+              key={model}
+              className="w-full text-left px-4 py-2 rounded-lg hover:bg-white/50 transition-colors"
+            >
+              {model}
+            </button>
+          ))}
+        </div>
+
+        <div className="absolute bottom-4 left-4 right-4">
+          <div className="bg-white/50 rounded-lg p-4 space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Basic</span>
+              <span>0 / 20</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>Advanced</span>
+              <span>2 / 0</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>Images</span>
+              <span>0 / 0</span>
+            </div>
           </div>
         </div>
       </div>
@@ -56,14 +94,14 @@ const Index = () => {
       <div className="flex-1 flex flex-col">
         {/* Chat Messages */}
         <ScrollArea className="flex-1 p-4">
-          <div className="space-y-4">
+          <div className="space-y-4 max-w-3xl mx-auto">
             {messages.map((msg, index) => (
               <div
                 key={index}
                 className={`${
                   msg.isUser 
                     ? "ml-auto bg-primary text-white" 
-                    : "bg-secondary text-foreground/90"
+                    : "bg-secondary text-foreground"
                 } rounded-lg p-4 max-w-[80%] animate-fade-in`}
               >
                 {msg.content}
@@ -73,10 +111,13 @@ const Index = () => {
         </ScrollArea>
 
         {/* Input Area */}
-        <div className="border-t border-border p-4">
-          <div className="flex gap-2 max-w-4xl mx-auto">
+        <div className="border-t p-4">
+          <div className="flex gap-2 max-w-3xl mx-auto">
+            <Button variant="outline" size="icon" className="shrink-0">
+              <Plus className="h-4 w-4" />
+            </Button>
             <Input
-              placeholder="Type a message..."
+              placeholder="Use / to select prompts, Shift+Enter to add new line"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => {
@@ -85,12 +126,12 @@ const Index = () => {
                   handleSend();
                 }
               }}
-              className="flex-1 bg-secondary border-input text-foreground placeholder:text-foreground/50 focus:ring-primary"
+              className="flex-1 bg-background border-input text-foreground placeholder:text-muted focus:ring-primary"
             />
             <Button 
               onClick={handleSend} 
               size="icon"
-              className="bg-primary hover:bg-primary/90 text-white"
+              className="bg-primary hover:bg-primary/90 text-white shrink-0"
             >
               <Send className="h-4 w-4" />
             </Button>
