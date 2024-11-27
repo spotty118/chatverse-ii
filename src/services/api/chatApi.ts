@@ -13,6 +13,12 @@ const VALID_OPENAI_MODELS = [
   'gpt-4o-mini'       // Affordable small model
 ];
 
+// Define valid Google models
+const VALID_GOOGLE_MODELS = [
+  'gemini-pro-1.5',     // Latest Gemini Pro
+  'gemini-flash-1.5'    // Latest Gemini Flash
+];
+
 export const chatApi = {
   async sendMessage(content: string, provider: Provider, options: ChatOptions): Promise<Message> {
     console.log("Sending message to API:", { content, provider, options });
@@ -42,6 +48,9 @@ export const chatApi = {
           break;
 
         case 'google':
+          if (!VALID_GOOGLE_MODELS.includes(options.model)) {
+            throw new Error(`Unsupported Google model. Please use one of: ${VALID_GOOGLE_MODELS.join(', ')}`);
+          }
           response = options.stream
             ? await streamGoogleChat(content, options, apiKey, "https://generativelanguage.googleapis.com/v1")
             : await handleGoogleChat(content, options, apiKey, "https://generativelanguage.googleapis.com/v1");
@@ -84,7 +93,6 @@ export const chatApi = {
 
     try {
       let models: string[] = [];
-      let apiResponse: Response;
       
       switch (provider) {
         case 'openai':
@@ -98,31 +106,26 @@ export const chatApi = {
           break;
 
         case 'google':
-          apiResponse = await fetch(`https://generativelanguage.googleapis.com/v1/models?key=${apiKey}`);
-          if (apiResponse.ok) {
-            const data = await apiResponse.json();
-            models = data.models
-              .filter((model: any) => model.name.includes('gemini'))
-              .map((model: any) => model.name.split('/').pop());
-          }
+          // Return only the supported Google models
+          models = VALID_GOOGLE_MODELS;
           break;
 
         case 'mistral':
-          apiResponse = await fetch("https://api.mistral.ai/v1/models", {
+          const mistralResponse = await fetch("https://api.mistral.ai/v1/models", {
             headers: {
               "Authorization": `Bearer ${apiKey}`
             }
           });
-          if (apiResponse.ok) {
-            const data = await apiResponse.json();
+          if (mistralResponse.ok) {
+            const data = await mistralResponse.json();
             models = data.data.map((model: any) => model.id);
           }
           break;
 
         case 'ollama':
-          apiResponse = await fetch("http://localhost:11434/api/tags");
-          if (apiResponse.ok) {
-            const data = await apiResponse.json();
+          const ollamaResponse = await fetch("http://localhost:11434/api/tags");
+          if (ollamaResponse.ok) {
+            const data = await ollamaResponse.json();
             models = data.models || [];
           }
           break;
