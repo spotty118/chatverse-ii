@@ -7,6 +7,14 @@ import { handleOllamaChat } from "../providers/ollamaService";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
+// Define valid OpenAI models
+const VALID_OPENAI_MODELS = [
+  'gpt-4o',           // High-intelligence flagship model
+  'gpt-4o-mini',      // Affordable small model
+  'o1-preview',       // RL-trained complex reasoning model
+  'o1-mini'           // RL-trained smaller model
+];
+
 export const chatApi = {
   async sendMessage(content: string, provider: Provider, options: ChatOptions): Promise<Message> {
     console.log("Sending message to API:", { content, provider, options });
@@ -21,9 +29,8 @@ export const chatApi = {
 
       switch (provider) {
         case 'openai':
-          // Validate model is one of the supported ones
-          if (!['gpt-4o', 'gpt-4o-mini'].includes(options.model)) {
-            throw new Error('Unsupported OpenAI model. Please use gpt-4o or gpt-4o-mini.');
+          if (!VALID_OPENAI_MODELS.includes(options.model)) {
+            throw new Error(`Unsupported OpenAI model. Please use one of: ${VALID_OPENAI_MODELS.join(', ')}`);
           }
           response = options.stream 
             ? await streamOpenAIChat(content, options, apiKey, "https://api.openai.com/v1")
@@ -78,13 +85,12 @@ export const chatApi = {
     }
 
     try {
-      let response: Response;
       let models: string[] = [];
       
       switch (provider) {
         case 'openai':
           // Return only the supported models
-          models = ['gpt-4o', 'gpt-4o-mini'];
+          models = VALID_OPENAI_MODELS;
           break;
 
         case 'anthropic':
