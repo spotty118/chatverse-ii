@@ -8,22 +8,14 @@ export async function handleOpenAIChat(
 ): Promise<string> {
   console.log("Starting OpenAI chat request with model:", options.model);
 
-  // Check if it's a chat model
-  const isChatModel = options.model.includes("gpt");
-  const endpoint = isChatModel ? "/v1/chat/completions" : "/v1/completions";
-
-  const requestBody = isChatModel ? {
+  // All current OpenAI models are chat models
+  const endpoint = "/v1/chat/completions";
+  const requestBody = {
     model: options.model,
     messages: [
       ...(options.systemPrompt ? [{ role: "system", content: options.systemPrompt }] : []),
       { role: "user", content }
     ],
-    temperature: options.temperature || 0.7,
-    max_tokens: options.maxTokens || 2048,
-    stream: false
-  } : {
-    model: options.model,
-    prompt: content,
     temperature: options.temperature || 0.7,
     max_tokens: options.maxTokens || 2048,
     stream: false
@@ -45,7 +37,7 @@ export async function handleOpenAIChat(
   }
 
   const data = await response.json();
-  return isChatModel ? data.choices[0].message.content : data.choices[0].text;
+  return data.choices[0].message.content;
 }
 
 export async function streamOpenAIChat(
@@ -57,22 +49,13 @@ export async function streamOpenAIChat(
 ): Promise<string> {
   console.log("Starting OpenAI streaming chat with model:", options.model);
   
-  // Check if it's a chat model
-  const isChatModel = options.model.includes("gpt");
-  const endpoint = isChatModel ? "/v1/chat/completions" : "/v1/completions";
-
-  const requestBody = isChatModel ? {
+  const endpoint = "/v1/chat/completions";
+  const requestBody = {
     model: options.model,
     messages: [
       ...(options.systemPrompt ? [{ role: "system", content: options.systemPrompt }] : []),
       { role: "user", content }
     ],
-    temperature: options.temperature || 0.7,
-    max_tokens: options.maxTokens || 2048,
-    stream: true
-  } : {
-    model: options.model,
-    prompt: content,
     temperature: options.temperature || 0.7,
     max_tokens: options.maxTokens || 2048,
     stream: true
@@ -115,9 +98,7 @@ export async function streamOpenAIChat(
 
           try {
             const parsed = JSON.parse(data);
-            const content = isChatModel 
-              ? parsed.choices[0]?.delta?.content || ''
-              : parsed.choices[0]?.text || '';
+            const content = parsed.choices[0]?.delta?.content || '';
               
             if (content) {
               onChunk?.(content);
