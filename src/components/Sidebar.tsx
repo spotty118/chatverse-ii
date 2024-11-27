@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction } from 'react';
 import { Provider } from '@/types/chat';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
+import { Settings } from './Settings';
 
 interface SidebarProps {
   onProviderSelect: Dispatch<SetStateAction<Provider>>;
@@ -32,9 +33,12 @@ export const Sidebar = ({
 
   return (
     <div className="w-64 bg-[#F6F7F9] p-4 flex flex-col">
-      <div className="flex items-center gap-2 mb-6">
-        <img src="/placeholder.svg" alt="Logo" className="h-8 w-8" />
-        <span className="font-semibold text-lg">ChatVerse II</span>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <img src="/placeholder.svg" alt="Logo" className="h-8 w-8" />
+          <span className="font-semibold text-lg">ChatVerse II</span>
+        </div>
+        <Settings />
       </div>
       
       <div className="space-y-1 flex-1">
