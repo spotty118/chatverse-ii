@@ -14,6 +14,13 @@ export interface Message {
   model?: string;
   error?: string;
   pending?: boolean;
+  parentId?: string; // For threading
+  context?: string; // For maintaining context
+  metadata?: {
+    tokens?: number;
+    processingTime?: number;
+    attachments?: string[];
+  };
 }
 
 export interface ProviderConfig {
@@ -23,6 +30,8 @@ export interface ProviderConfig {
   isEnabled: boolean;
   baseUrl?: string;
   customHeaders?: Record<string, string>;
+  streamingSupported?: boolean;
+  functionCallingSupported?: boolean;
 }
 
 export interface ChatOptions {
@@ -30,4 +39,21 @@ export interface ChatOptions {
   temperature?: number;
   maxTokens?: number;
   systemPrompt?: string;
+  stream?: boolean;
+  functions?: ChatFunction[];
+  context?: string;
+}
+
+export interface ChatFunction {
+  name: string;
+  description: string;
+  parameters: Record<string, any>;
+}
+
+export interface ChatState {
+  messages: Message[];
+  context: string;
+  activeThread?: string;
+  streaming: boolean;
+  error?: string;
 }
