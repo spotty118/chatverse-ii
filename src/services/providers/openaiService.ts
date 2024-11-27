@@ -6,16 +6,22 @@ export async function handleOpenAIChat(
   apiKey: string,
   baseUrl: string
 ): Promise<string> {
-  console.log("Starting OpenAI chat request with model:", options.model);
+  console.log("Starting OpenAI request with model:", options.model);
 
-  // All current OpenAI models are chat models
-  const endpoint = "chat/completions";
-  const requestBody = {
+  const endpoint = options.useAttachmentModel ? "chat/completions" : "completions";
+  
+  const requestBody = options.useAttachmentModel ? {
     model: options.model,
     messages: [
       ...(options.systemPrompt ? [{ role: "system", content: options.systemPrompt }] : []),
       { role: "user", content }
     ],
+    temperature: options.temperature || 0.7,
+    max_tokens: options.maxTokens || 2048,
+    stream: false
+  } : {
+    model: options.model,
+    prompt: content,
     temperature: options.temperature || 0.7,
     max_tokens: options.maxTokens || 2048,
     stream: false
@@ -38,7 +44,9 @@ export async function handleOpenAIChat(
   }
 
   const data = await response.json();
-  return data.choices[0].message.content;
+  return options.useAttachmentModel 
+    ? data.choices[0].message.content
+    : data.choices[0].text;
 }
 
 export async function streamOpenAIChat(
@@ -48,15 +56,22 @@ export async function streamOpenAIChat(
   baseUrl: string,
   onChunk?: (chunk: string) => void
 ): Promise<string> {
-  console.log("Starting OpenAI streaming chat with model:", options.model);
+  console.log("Starting OpenAI streaming with model:", options.model);
   
-  const endpoint = "chat/completions";
-  const requestBody = {
+  const endpoint = options.useAttachmentModel ? "chat/completions" : "completions";
+  
+  const requestBody = options.useAttachmentModel ? {
     model: options.model,
     messages: [
       ...(options.systemPrompt ? [{ role: "system", content: options.systemPrompt }] : []),
       { role: "user", content }
     ],
+    temperature: options.temperature || 0.7,
+    max_tokens: options.maxTokens || 2048,
+    stream: true
+  } : {
+    model: options.model,
+    prompt: content,
     temperature: options.temperature || 0.7,
     max_tokens: options.maxTokens || 2048,
     stream: true
@@ -100,7 +115,9 @@ export async function streamOpenAIChat(
 
           try {
             const parsed = JSON.parse(data);
-            const content = parsed.choices[0]?.delta?.content || '';
+            const content = options.useAttachmentModel
+              ? parsed.choices[0]?.delta?.content || ''
+              : parsed.choices[0]?.text || '';
               
             if (content) {
               onChunk?.(content);

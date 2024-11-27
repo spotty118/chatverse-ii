@@ -20,7 +20,6 @@ const Index = () => {
   const [selectedModel, setSelectedModel] = useState('');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  // Fetch available models for the selected provider
   const { data: models } = useQuery({
     queryKey: ['models', selectedProvider],
     queryFn: () => chatService.getModels(selectedProvider),
@@ -67,8 +66,8 @@ const Index = () => {
     }
   }, [models, selectedModel]);
 
-  const handleSendMessage = async (content: string) => {
-    console.log("Handling send message:", content);
+  const handleSendMessage = async (content: string, useAttachmentModel: boolean) => {
+    console.log("Handling send message:", content, "Attachment mode:", useAttachmentModel);
     
     if (!selectedModel) {
       toast.error("Please select a model first");
@@ -80,7 +79,8 @@ const Index = () => {
         model: selectedModel,
         temperature: 0.7,
         maxTokens: 2048,
-        stream: true
+        stream: true,
+        useAttachmentModel
       });
     } catch (error) {
       console.error("Error in chat:", error);
