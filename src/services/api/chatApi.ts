@@ -33,8 +33,9 @@ export const chatApi = {
           break;
 
         case 'google':
-          // Disable streaming for Google as it requires different parsing
-          response = await handleGoogleChat(content, options, apiKey, "https://generativelanguage.googleapis.com/v1");
+          response = options.stream 
+            ? await streamGoogleChat(content, options, apiKey, "https://generativelanguage.googleapis.com/v1") 
+            : await handleGoogleChat(content, options, apiKey, "https://generativelanguage.googleapis.com/v1");
           break;
 
         case 'mistral':
@@ -88,14 +89,10 @@ export const chatApi = {
           return ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'];
 
         case 'google':
-          // Google Gemini models - showing available variants
+          // Only officially supported Google Gemini models
           return [
             'gemini-pro',
-            'gemini-pro-1.0',
-            'gemini-pro-1.5',
-            'gemini-pro-latest',
-            'gemini-pro-vision',
-            'gemini-pro-vision-latest'
+            'gemini-pro-vision'
           ];
 
         case 'mistral':
@@ -152,11 +149,7 @@ export const chatApi = {
       case 'google':
         return [
           'gemini-pro',
-          'gemini-pro-1.0',
-          'gemini-pro-1.5',
-          'gemini-pro-latest',
-          'gemini-pro-vision',
-          'gemini-pro-vision-latest'
+          'gemini-pro-vision'
         ];
       case 'mistral':
         return ['mistral-tiny', 'mistral-small', 'mistral-medium'];
