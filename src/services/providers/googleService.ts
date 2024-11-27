@@ -8,11 +8,10 @@ export async function handleGoogleChat(
 ): Promise<string> {
   console.log("Starting Google AI chat request");
   
-  const response = await fetch(`${baseUrl}/models/${options.model}:generateContent`, {
+  const response = await fetch(`${baseUrl}/models/${options.model}:generateContent?key=${apiKey}`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({
       contents: [{ parts: [{ text: content }] }],
@@ -41,11 +40,10 @@ export async function streamGoogleChat(
 ): Promise<string> {
   console.log("Starting Google AI stream chat");
   
-  const response = await fetch(`${baseUrl}/models/${options.model}:streamGenerateContent`, {
+  const response = await fetch(`${baseUrl}/models/${options.model}:streamGenerateContent?key=${apiKey}`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({
       contents: [{ parts: [{ text: content }] }],
