@@ -61,12 +61,11 @@ class ChatService {
   ): Promise<Message> {
     console.log("Sending message:", { content, provider, options });
     
-    let pendingMessage: Message | undefined;
-    
     try {
+      // Set streaming state first
       this.updateState({ streaming: true });
 
-      // Add user message immediately
+      // Create user message
       const userMessage: Message = {
         id: uuidv4(),
         content,
@@ -75,13 +74,9 @@ class ChatService {
         provider,
         model: options.model
       };
-      
-      this.updateState({
-        messages: [...this.state.messages, userMessage]
-      });
 
-      // Add pending assistant message
-      pendingMessage = {
+      // Create pending assistant message
+      const pendingMessage: Message = {
         id: uuidv4(),
         content: "",
         isUser: false,
@@ -91,8 +86,9 @@ class ChatService {
         pending: true
       };
 
+      // Update state with both messages at once to prevent multiple renders
       this.updateState({
-        messages: [...this.state.messages, pendingMessage]
+        messages: [...this.state.messages, userMessage, pendingMessage]
       });
 
       // Send message to API
@@ -100,7 +96,7 @@ class ChatService {
 
       // Update pending message with response
       const updatedMessages = this.state.messages.map(msg => 
-        msg.id === pendingMessage?.id ? { ...response, id: msg.id } : msg
+        msg.id === pendingMessage.id ? { ...response, id: msg.id } : msg
       );
 
       this.updateState({
@@ -112,17 +108,15 @@ class ChatService {
     } catch (error) {
       console.error("Error sending message:", error);
       
-      // Remove pending message on error
-      if (pendingMessage) {
-        const messagesWithoutPending = this.state.messages.filter(
-          msg => msg.id !== pendingMessage.id
-        );
-        
-        this.updateState({
-          messages: messagesWithoutPending,
-          streaming: false
-        });
-      }
+      // Remove only the pending message on error
+      const messagesWithoutPending = this.state.messages.filter(
+        msg => msg.pending !== true
+      );
+      
+      this.updateState({
+        messages: messagesWithoutPending,
+        streaming: false
+      });
 
       throw error;
     }
