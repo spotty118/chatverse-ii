@@ -27,7 +27,7 @@ export const Settings = () => {
     setKeys(prev => ({ ...prev, [provider]: key }));
     
     try {
-      await chatService.fetchModels(provider);
+      await chatService.getModels(provider);
       toast.success(`${provider} API key saved successfully`);
     } catch (error) {
       console.error(`Error fetching models for ${provider}:`, error);

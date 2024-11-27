@@ -27,7 +27,7 @@ export const Sidebar = ({
   // Fetch models for the selected provider
   const { data: models = [] } = useQuery({
     queryKey: ['models', selectedProvider],
-    queryFn: () => chatService.fetchModels(selectedProvider),
+    queryFn: () => chatService.getModels(selectedProvider),
     enabled: !!localStorage.getItem(`${selectedProvider}_api_key`),
     meta: {
       onError: (error: Error) => {
