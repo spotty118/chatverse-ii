@@ -3,12 +3,42 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
+
+interface ChatMessage {
+  content: string;
+  isUser: boolean;
+}
 
 const Index = () => {
   const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    { content: "Hello! How can I help you today?", isUser: false }
+  ]);
+  const { toast } = useToast();
 
   const handleSend = () => {
-    console.log("Message sent:", message);
+    if (!message.trim()) {
+      toast({
+        title: "Message cannot be empty",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Add user message
+    const userMessage: ChatMessage = { content: message, isUser: true };
+    setMessages(prev => [...prev, userMessage]);
+
+    // Simulate response (you can replace this with actual API call later)
+    const botMessage: ChatMessage = {
+      content: "This is a demo response. The AI integration will be implemented later.",
+      isUser: false
+    };
+    setTimeout(() => {
+      setMessages(prev => [...prev, botMessage]);
+    }, 1000);
+
     setMessage("");
   };
 
@@ -29,9 +59,16 @@ const Index = () => {
         {/* Chat Messages */}
         <ScrollArea className="flex-1 p-4">
           <div className="space-y-4">
-            <div className="bg-accent rounded-lg p-4 max-w-[80%]">
-              Hello! How can I help you today?
-            </div>
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`${
+                  msg.isUser ? "ml-auto bg-primary text-primary-foreground" : "bg-accent"
+                } rounded-lg p-4 max-w-[80%]`}
+              >
+                {msg.content}
+              </div>
+            ))}
           </div>
         </ScrollArea>
 
