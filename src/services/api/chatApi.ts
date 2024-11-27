@@ -88,13 +88,14 @@ export const chatApi = {
           return ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'];
 
         case 'google':
-          // Google Gemini models are currently not fetchable via API
-          // Returning all available models
+          // Google Gemini models - showing available variants
           return [
             'gemini-pro',
+            'gemini-pro-1.0',
+            'gemini-pro-1.5',
+            'gemini-pro-latest',
             'gemini-pro-vision',
-            'gemini-ultra',
-            'gemini-nano'
+            'gemini-pro-vision-latest'
           ];
 
         case 'mistral':
@@ -149,7 +150,14 @@ export const chatApi = {
       case 'anthropic':
         return ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'];
       case 'google':
-        return ['gemini-pro', 'gemini-pro-vision', 'gemini-ultra', 'gemini-nano'];
+        return [
+          'gemini-pro',
+          'gemini-pro-1.0',
+          'gemini-pro-1.5',
+          'gemini-pro-latest',
+          'gemini-pro-vision',
+          'gemini-pro-vision-latest'
+        ];
       case 'mistral':
         return ['mistral-tiny', 'mistral-small', 'mistral-medium'];
       case 'ollama':
