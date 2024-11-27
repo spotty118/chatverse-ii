@@ -32,16 +32,25 @@ export const Sidebar = ({
   ];
 
   return (
-    <div className="w-64 bg-[#F6F7F9] p-4 flex flex-col">
+    <div className="w-64 bg-primary text-white p-5 flex flex-col">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <img src="/placeholder.svg" alt="Logo" className="h-8 w-8" />
-          <span className="font-semibold text-lg">ChatVerse II</span>
+          <span className="font-bold text-2xl">Chat Hub</span>
         </div>
         <Settings />
       </div>
       
-      <div className="space-y-1 flex-1">
+      <div className="mb-6">
+        <div className="font-bold text-lg mb-2">FREE PLAN</div>
+        <div className="space-y-1 text-sm">
+          <div>Basic: 0/20</div>
+          <div>Advanced: 2/6</div>
+          <div>Images: 0/6</div>
+        </div>
+      </div>
+
+      <div className="space-y-2 flex-1">
         {models.map((model) => (
           <button
             key={model.name}
@@ -51,8 +60,10 @@ export const Sidebar = ({
               }
               onModelSelect(model.name);
             }}
-            className={`w-full text-left px-4 py-2 rounded-lg hover:bg-white/50 transition-colors ${
-              selectedModel === model.name ? 'bg-white/50' : ''
+            className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+              selectedModel === model.name 
+                ? 'bg-primary-hover' 
+                : 'hover:bg-primary-hover'
             }`}
           >
             {model.name}
@@ -60,33 +71,14 @@ export const Sidebar = ({
         ))}
       </div>
 
-      <div className="mt-4 border-t pt-4">
-        <Button
-          variant="outline"
-          className="w-full flex items-center gap-2"
-          onClick={onClearChat}
-        >
-          <Trash2 className="h-4 w-4" />
-          Clear Chat
-        </Button>
-      </div>
-
-      <div className="mt-4">
-        <div className="bg-white/50 rounded-lg p-4 space-y-2">
-          <div className="flex justify-between text-sm">
-            <span>Basic</span>
-            <span>0 / 20</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span>Advanced</span>
-            <span>2 / 0</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span>Images</span>
-            <span>0 / 0</span>
-          </div>
-        </div>
-      </div>
+      <Button
+        variant="outline"
+        className="mt-4 w-full flex items-center gap-2 bg-primary-hover hover:bg-accent text-white border-white/20"
+        onClick={onClearChat}
+      >
+        <Trash2 className="h-4 w-4" />
+        Clear Chat
+      </Button>
     </div>
   );
 };

@@ -18,19 +18,23 @@ export default {
     },
     extend: {
       colors: {
-        border: "#e2e8f0",
-        input: "#f8fafc",
-        background: "#ffffff",
-        foreground: "#1E1E1E",
-        primary: "#4f46e5",
-        secondary: "#F6F7F9",
-        muted: "#64748b",
-        accent: "#818cf8",
+        border: "#ccc",
+        input: "#F1F1F1",
+        background: "#f7f7f7",
+        foreground: "#000000",
+        primary: "#2C7D9C",
+        "primary-hover": "#1A6B8D",
+        secondary: "#F1F1F1",
+        muted: "#666666",
+        accent: "#176085",
       },
       borderRadius: {
         lg: "0.5rem",
         md: "0.375rem",
         sm: "0.25rem",
+      },
+      boxShadow: {
+        custom: "0 4px 8px rgba(0, 0, 0, 0.1)",
       },
       keyframes: {
         "accordion-down": {
