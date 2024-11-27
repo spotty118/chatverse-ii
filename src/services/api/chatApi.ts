@@ -15,8 +15,8 @@ const VALID_OPENAI_MODELS = [
 
 // Define valid Google models
 const VALID_GOOGLE_MODELS = [
-  'gemini-pro-1.5',     // Latest Gemini Pro
-  'gemini-flash-1.5'    // Latest Gemini Flash
+  'gemini-1.5-pro',     // Latest Gemini Pro 1.5
+  'gemini-1.5-pro-latest'    // Latest Gemini Pro 1.5 (latest)
 ];
 
 export const chatApi = {
