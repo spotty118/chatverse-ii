@@ -6,31 +6,46 @@ export async function handleOpenAIChat(
   apiKey: string,
   baseUrl: string
 ): Promise<string> {
-  const response = await fetch(`${baseUrl}/chat/completions`, {
+  console.log("Starting OpenAI chat request with model:", options.model);
+
+  // Check if it's a chat model
+  const isChatModel = options.model.includes("gpt");
+  const endpoint = isChatModel ? "/v1/chat/completions" : "/v1/completions";
+
+  const requestBody = isChatModel ? {
+    model: options.model,
+    messages: [
+      ...(options.systemPrompt ? [{ role: "system", content: options.systemPrompt }] : []),
+      { role: "user", content }
+    ],
+    temperature: options.temperature || 0.7,
+    max_tokens: options.maxTokens || 2048,
+    stream: false
+  } : {
+    model: options.model,
+    prompt: content,
+    temperature: options.temperature || 0.7,
+    max_tokens: options.maxTokens || 2048,
+    stream: false
+  };
+
+  const response = await fetch(`${baseUrl}${endpoint}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${apiKey}`
     },
-    body: JSON.stringify({
-      model: options.model,
-      messages: [
-        ...(options.systemPrompt ? [{ role: "system", content: options.systemPrompt }] : []),
-        { role: "user", content }
-      ],
-      temperature: options.temperature || 0.7,
-      max_tokens: options.maxTokens || 2048,
-      stream: false
-    })
+    body: JSON.stringify(requestBody)
   });
 
   if (!response.ok) {
     const error = await response.json();
+    console.error("OpenAI API error:", error);
     throw new Error(error.error?.message || "Failed to get response from OpenAI");
   }
 
   const data = await response.json();
-  return data.choices[0].message.content;
+  return isChatModel ? data.choices[0].message.content : data.choices[0].text;
 }
 
 export async function streamOpenAIChat(
@@ -40,22 +55,36 @@ export async function streamOpenAIChat(
   baseUrl: string,
   onChunk?: (chunk: string) => void
 ): Promise<string> {
-  const response = await fetch(`${baseUrl}/chat/completions`, {
+  console.log("Starting OpenAI streaming chat with model:", options.model);
+  
+  // Check if it's a chat model
+  const isChatModel = options.model.includes("gpt");
+  const endpoint = isChatModel ? "/v1/chat/completions" : "/v1/completions";
+
+  const requestBody = isChatModel ? {
+    model: options.model,
+    messages: [
+      ...(options.systemPrompt ? [{ role: "system", content: options.systemPrompt }] : []),
+      { role: "user", content }
+    ],
+    temperature: options.temperature || 0.7,
+    max_tokens: options.maxTokens || 2048,
+    stream: true
+  } : {
+    model: options.model,
+    prompt: content,
+    temperature: options.temperature || 0.7,
+    max_tokens: options.maxTokens || 2048,
+    stream: true
+  };
+
+  const response = await fetch(`${baseUrl}${endpoint}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${apiKey}`
     },
-    body: JSON.stringify({
-      model: options.model,
-      messages: [
-        ...(options.systemPrompt ? [{ role: "system", content: options.systemPrompt }] : []),
-        { role: "user", content }
-      ],
-      temperature: options.temperature || 0.7,
-      max_tokens: options.maxTokens || 2048,
-      stream: true
-    })
+    body: JSON.stringify(requestBody)
   });
 
   if (!response.ok) {
@@ -86,7 +115,10 @@ export async function streamOpenAIChat(
 
           try {
             const parsed = JSON.parse(data);
-            const content = parsed.choices[0]?.delta?.content || '';
+            const content = isChatModel 
+              ? parsed.choices[0]?.delta?.content || ''
+              : parsed.choices[0]?.text || '';
+              
             if (content) {
               onChunk?.(content);
               fullContent += content;
