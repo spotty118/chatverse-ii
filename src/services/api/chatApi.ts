@@ -1,6 +1,6 @@
 import { Message, Provider, ChatOptions } from "@/types/chat";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export const chatApi = {
   async sendMessage(content: string, provider: Provider, options: ChatOptions): Promise<Message> {
@@ -13,7 +13,6 @@ export const chatApi = {
           "Content-Type": "application/json",
           "Accept": "application/json",
         },
-        credentials: "include",
         body: JSON.stringify({
           content,
           provider,
@@ -22,8 +21,8 @@ export const chatApi = {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to send message");
+        const error = await response.json().catch(() => ({ message: "Network response was not ok" }));
+        throw new Error(error.message || `HTTP error! status: ${response.status}`);
       }
 
       return response.json();
@@ -41,15 +40,16 @@ export const chatApi = {
         headers: {
           "Accept": "application/json",
         },
-        credentials: "include",
       });
       
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to fetch models");
+        const error = await response.json().catch(() => ({ message: "Network response was not ok" }));
+        throw new Error(error.message || `HTTP error! status: ${response.status}`);
       }
 
-      return response.json();
+      const data = await response.json();
+      console.log("Received models:", data);
+      return data;
     } catch (error) {
       console.error("API Error:", error);
       throw error;
