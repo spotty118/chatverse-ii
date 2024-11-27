@@ -33,8 +33,9 @@ export const chatApi = {
           break;
 
         case 'google':
-          // Disable streaming for Google as it requires different parsing
-          response = await handleGoogleChat(content, options, apiKey, "https://generativelanguage.googleapis.com/v1");
+          response = options.stream
+            ? await streamGoogleChat(content, options, apiKey, "https://generativelanguage.googleapis.com/v1")
+            : await handleGoogleChat(content, options, apiKey, "https://generativelanguage.googleapis.com/v1");
           break;
 
         case 'mistral':
@@ -68,12 +69,13 @@ export const chatApi = {
     
     const apiKey = localStorage.getItem(`${provider}_api_key`);
     if (!apiKey) {
-      console.log("No API key found, returning default models");
-      return this.getDefaultModels(provider);
+      console.log("No API key found, returning empty model list");
+      return [];
     }
 
     try {
       let response: Response;
+      let models: string[] = [];
       
       switch (provider) {
         case 'openai':
@@ -82,13 +84,28 @@ export const chatApi = {
               "Authorization": `Bearer ${apiKey}`
             }
           });
+          if (response.ok) {
+            const data = await response.json();
+            models = data.data
+              .filter((model: any) => model.id.startsWith('gpt'))
+              .map((model: any) => model.id);
+          }
           break;
 
         case 'anthropic':
-          return ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'];
+          // Anthropic doesn't have a models endpoint, return supported models
+          models = ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'];
+          break;
 
         case 'google':
-          return ['gemini-pro'];
+          response = await fetch(`https://generativelanguage.googleapis.com/v1/models?key=${apiKey}`);
+          if (response.ok) {
+            const data = await response.json();
+            models = data.models
+              .filter((model: any) => model.name.includes('gemini'))
+              .map((model: any) => model.name.split('/').pop());
+          }
+          break;
 
         case 'mistral':
           response = await fetch("https://api.mistral.ai/v1/models", {
@@ -96,59 +113,26 @@ export const chatApi = {
               "Authorization": `Bearer ${apiKey}`
             }
           });
+          if (response.ok) {
+            const data = await response.json();
+            models = data.data.map((model: any) => model.id);
+          }
           break;
 
         case 'ollama':
           response = await fetch("http://localhost:11434/api/tags");
+          if (response.ok) {
+            const data = await response.json();
+            models = data.models || [];
+          }
           break;
-
-        default:
-          throw new Error(`Unsupported provider: ${provider}`);
       }
 
-      if (!response.ok) {
-        console.log("API not available, using default models");
-        return this.getDefaultModels(provider);
-      }
-
-      const data = await response.json();
-      
-      // Format response based on provider
-      switch (provider) {
-        case 'openai':
-          return data.data
-            .filter((model: any) => model.id.startsWith('gpt'))
-            .map((model: any) => model.id);
-        
-        case 'mistral':
-          return data.data.map((model: any) => model.id);
-        
-        case 'ollama':
-          return data.models || [];
-        
-        default:
-          return this.getDefaultModels(provider);
-      }
+      console.log(`Fetched models for ${provider}:`, models);
+      return models;
     } catch (error) {
-      console.log("Error fetching models:", error);
-      return this.getDefaultModels(provider);
-    }
-  },
-
-  getDefaultModels(provider: Provider): string[] {
-    switch (provider) {
-      case 'openai':
-        return ['gpt-4o', 'gpt-4o-mini', 'gpt-3.5'];
-      case 'anthropic':
-        return ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'];
-      case 'google':
-        return ['gemini-pro'];
-      case 'mistral':
-        return ['mistral-tiny', 'mistral-small', 'mistral-medium'];
-      case 'ollama':
-        return ['llama2', 'mistral', 'codellama'];
-      default:
-        return [];
+      console.error("Error fetching models:", error);
+      return [];
     }
   }
 };
