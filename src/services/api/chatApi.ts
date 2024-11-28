@@ -5,64 +5,13 @@ import { handleGoogleChat, streamGoogleChat } from "../providers/googleService";
 import { handleMistralChat } from "../providers/mistralService";
 import { handleOllamaChat } from "../providers/ollamaService";
 import { handleOpenRouterChat } from "../providers/openrouterService";
-
-// Define valid OpenAI models with display names
-const VALID_OPENAI_MODELS = {
-  'gpt-4o': 'GPT-4o',
-  'gpt-4o-mini': 'GPT-4o-mini'
-};
-
-// Define valid Google models with display names
-const VALID_GOOGLE_MODELS = {
-  'gemini-1.5-pro': 'Gemini-1.5-Pro',
-  'gemini-1.5-flash': 'Gemini-1.5-Flash'
-};
-
-// Define valid OpenRouter models with display names
-const VALID_OPENROUTER_MODELS = {
-  'openai/gpt-4-turbo': 'GPT-4 Turbo',
-  'anthropic/claude-3-opus': 'Claude 3 Opus',
-  'google/gemini-pro': 'Gemini Pro',
-  'meta-llama/llama-2-70b-chat': 'Llama 2 70B'
-};
+import { PROVIDER_MODEL_NAMES } from "./modelDefinitions";
+import { getDefaultBaseUrl } from "./baseUrls";
 
 export const chatApi = {
   getModelDisplayName(provider: Provider, modelId: string): string {
-    switch (provider) {
-      case 'openai':
-        return VALID_OPENAI_MODELS[modelId as keyof typeof VALID_OPENAI_MODELS] || modelId;
-      case 'google':
-        const googleDisplayNames: Record<string, string> = {
-          'gemini-1.5-pro': 'Gemini-1.5-Pro',
-          'gemini-1.5-flash': 'Gemini-1.5-Flash'
-        };
-        return googleDisplayNames[modelId] || modelId;
-      case 'anthropic':
-        const anthropicDisplayNames: Record<string, string> = {
-          'claude-3-opus': 'Claude 3 Opus',
-          'claude-3-sonnet': 'Claude 3 Sonnet',
-          'claude-3-haiku': 'Claude 3 Haiku'
-        };
-        return anthropicDisplayNames[modelId] || modelId;
-      case 'mistral':
-        const mistralDisplayNames: Record<string, string> = {
-          'mistral-tiny': 'Mistral Tiny',
-          'mistral-small': 'Mistral Small',
-          'mistral-medium': 'Mistral Medium'
-        };
-        return mistralDisplayNames[modelId] || modelId;
-      case 'ollama':
-        const ollamaDisplayNames: Record<string, string> = {
-          'llama2': 'Llama 2',
-          'mistral': 'Mistral',
-          'codellama': 'Code Llama'
-        };
-        return ollamaDisplayNames[modelId] || modelId;
-      case 'openrouter':
-        return VALID_OPENROUTER_MODELS[modelId as keyof typeof VALID_OPENROUTER_MODELS] || modelId;
-      default:
-        return modelId;
-    }
+    const providerModels = PROVIDER_MODEL_NAMES[provider] || {};
+    return providerModels[modelId] || modelId;
   },
 
   async sendMessage(content: string, provider: Provider, options: ChatOptions & { baseUrl?: string }): Promise<Message> {
@@ -75,7 +24,7 @@ export const chatApi = {
 
     try {
       let response: string;
-      const baseUrl = options.baseUrl || this.getDefaultBaseUrl(provider);
+      const baseUrl = options.baseUrl || getDefaultBaseUrl(provider);
       console.log(`Using base URL: ${baseUrl}`);
 
       switch (provider) {
@@ -141,22 +90,20 @@ export const chatApi = {
       
       switch (provider) {
         case 'openai':
-          modelIds = ['gpt-4o', 'gpt-4o-mini'];
+          modelIds = Object.keys(PROVIDER_MODEL_NAMES.openai);
           break;
 
         case 'anthropic':
-          modelIds = ['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'];
+          modelIds = Object.keys(PROVIDER_MODEL_NAMES.anthropic);
           break;
 
         case 'google':
-          modelIds = ['gemini-1.5-pro', 'gemini-1.5-flash'];
+          modelIds = Object.keys(PROVIDER_MODEL_NAMES.google);
           break;
 
         case 'mistral':
           const mistralResponse = await fetch("https://api.mistral.ai/v1/models", {
-            headers: {
-              "Authorization": `Bearer ${apiKey}`
-            }
+            headers: { "Authorization": `Bearer ${apiKey}` }
           });
           if (mistralResponse.ok) {
             const data = await mistralResponse.json();
@@ -174,9 +121,7 @@ export const chatApi = {
 
         case 'openrouter':
           const openrouterResponse = await fetch("https://openrouter.ai/api/v1/models", {
-            headers: {
-              "Authorization": `Bearer ${apiKey}`
-            }
+            headers: { "Authorization": `Bearer ${apiKey}` }
           });
           if (openrouterResponse.ok) {
             const data = await openrouterResponse.json();
@@ -190,25 +135,6 @@ export const chatApi = {
     } catch (error) {
       console.error("Error fetching models:", error);
       return [];
-    }
-  },
-
-  getDefaultBaseUrl(provider: Provider): string {
-    switch (provider) {
-      case 'openai':
-        return 'https://api.openai.com/v1';
-      case 'anthropic':
-        return 'https://api.anthropic.com/v1';
-      case 'google':
-        return 'https://generativelanguage.googleapis.com/v1';
-      case 'mistral':
-        return 'https://api.mistral.ai/v1';
-      case 'ollama':
-        return 'http://localhost:11434';
-      case 'openrouter':
-        return 'https://openrouter.ai/api/v1';
-      default:
-        throw new Error(`No default base URL for provider: ${provider}`);
     }
   }
 };

@@ -1,6 +1,8 @@
+import { ChatOptions } from "@/types/chat";
+
 export const handleOpenRouterChat = async (
   content: string,
-  options: { model: string },
+  options: ChatOptions,
   apiKey: string,
   baseUrl: string = 'https://openrouter.ai/api/v1'
 ): Promise<string> => {
@@ -16,6 +18,8 @@ export const handleOpenRouterChat = async (
     body: JSON.stringify({
       model: options.model,
       messages: [{ role: 'user', content }],
+      temperature: options.temperature,
+      max_tokens: options.maxTokens,
     }),
   });
 
