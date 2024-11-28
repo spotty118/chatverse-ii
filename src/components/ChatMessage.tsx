@@ -11,10 +11,11 @@ export const ChatMessage = ({ content, isUser, pending }: ChatMessageProps) => {
   return (
     <div
       className={cn(
-        "rounded-lg p-4 max-w-[80%] animate-fade-in",
+        "rounded-lg p-4 max-w-[80%]",
         isUser
           ? "ml-auto bg-chat-blue text-white"
-          : "bg-secondary text-foreground"
+          : "bg-secondary text-foreground",
+        !pending && "animate-in fade-in-0 slide-in-from-bottom-3"
       )}
     >
       {pending ? (

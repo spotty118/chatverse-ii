@@ -46,7 +46,14 @@ const Index = () => {
     // Subscribe to chat service updates
     const unsubscribe = chatService.subscribe((state) => {
       console.log("Chat state updated:", state);
-      setChatState(state);
+      // Preserve existing messages and only append new ones
+      setChatState(prevState => ({
+        ...state,
+        messages: state.messages.map(msg => ({
+          ...msg,
+          animate: !prevState.messages.find(m => m.id === msg.id)
+        }))
+      }));
       
       // Scroll to bottom on new messages
       if (scrollAreaRef.current) {
@@ -96,7 +103,6 @@ const Index = () => {
   const handleProviderSelect = (provider: Provider) => {
     console.log("Switching to provider:", provider);
     setSelectedProvider(provider);
-    // Removed the chat clearing line to maintain chat history
   };
 
   return (

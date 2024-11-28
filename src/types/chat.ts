@@ -14,8 +14,9 @@ export interface Message {
   model?: string;
   error?: string;
   pending?: boolean;
-  parentId?: string; // For threading
-  context?: string; // For maintaining context
+  parentId?: string;
+  context?: string;
+  animate?: boolean;
   metadata?: {
     tokens?: number;
     processingTime?: number;
