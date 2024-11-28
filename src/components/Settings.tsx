@@ -8,6 +8,7 @@ import { Provider } from "@/types/chat";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { getDefaultBaseUrl } from "@/services/api/baseUrls";
 
 export const Settings = () => {
   const [open, setOpen] = useState(false);
@@ -49,7 +50,12 @@ export const Settings = () => {
     localStorage.setItem('use_cloudflare', checked.toString());
     
     if (!checked) {
-      chatService.setProviderBaseUrls({}); // Reset to default direct APIs
+      // Reset to default direct APIs
+      const defaultUrls = Object.keys(cloudflareUrls).reduce((acc, provider) => ({
+        ...acc,
+        [provider]: getDefaultBaseUrl(provider as Provider)
+      }), {});
+      chatService.setProviderBaseUrls(defaultUrls);
       toast.success('Switched to direct API calls');
     } else {
       chatService.setProviderBaseUrls(cloudflareUrls);
