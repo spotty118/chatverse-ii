@@ -8,7 +8,7 @@ export async function handleOpenRouterChat(
 ): Promise<string> {
   console.log('Making OpenRouter request to:', baseUrl);
   
-  const response = await fetch(`${baseUrl}/chat/completions`, {
+  const response = await fetch(`${baseUrl}/openrouter/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -43,7 +43,7 @@ export async function streamOpenRouterChat(
 ): Promise<string> {
   console.log("Starting OpenRouter stream request to:", baseUrl);
   
-  const response = await fetch(`${baseUrl}/chat/completions`, {
+  const response = await fetch(`${baseUrl}/openrouter/chat/completions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
