@@ -8,13 +8,14 @@ export async function handleOpenRouterChat(
 ): Promise<string> {
   console.log('Making OpenRouter request to:', baseUrl);
   
-  const response = await fetch(`${baseUrl}/openrouter/chat/completions`, {
+  const response = await fetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`,
       'HTTP-Referer': window.location.origin,
-      'X-Title': 'Chat Hub'
+      'X-Title': 'Chat Hub',
+      'api_key': apiKey // Add the API key as a separate header for Cloudflare
     },
     body: JSON.stringify({
       model: options.model,
@@ -43,13 +44,14 @@ export async function streamOpenRouterChat(
 ): Promise<string> {
   console.log("Starting OpenRouter stream request to:", baseUrl);
   
-  const response = await fetch(`${baseUrl}/openrouter/chat/completions`, {
+  const response = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${apiKey}`,
       'HTTP-Referer': window.location.origin,
-      'X-Title': 'Chat Hub'
+      'X-Title': 'Chat Hub',
+      'api_key': apiKey // Add the API key as a separate header for Cloudflare
     },
     body: JSON.stringify({
       model: options.model,
