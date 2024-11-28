@@ -24,7 +24,11 @@ export const chatApi = {
 
     try {
       let response: string;
-      const baseUrl = options.baseUrl || getDefaultBaseUrl(provider);
+      // For Google, always use Cloudflare URL if available
+      const baseUrl = provider === 'google' 
+        ? localStorage.getItem('cloudflare_url_google') || getDefaultBaseUrl(provider)
+        : options.baseUrl || getDefaultBaseUrl(provider);
+      
       const useCloudflare = localStorage.getItem('use_cloudflare') === 'true';
       console.log(`Using base URL: ${baseUrl}, Cloudflare enabled: ${useCloudflare}`);
 
@@ -42,22 +46,10 @@ export const chatApi = {
           break;
 
         case 'google':
-          try {
-            response = options.stream
-              ? await streamGoogleChat(content, options, apiKey, baseUrl)
-              : await handleGoogleChat(content, options, apiKey, baseUrl);
-          } catch (error) {
-            // Only attempt fallback if Cloudflare is disabled
-            if (error.message?.includes('Failed to fetch') && !useCloudflare) {
-              console.log('Cloudflare disabled, falling back to direct Google API');
-              const directUrl = getDefaultBaseUrl('google');
-              response = options.stream
-                ? await streamGoogleChat(content, options, apiKey, directUrl)
-                : await handleGoogleChat(content, options, apiKey, directUrl);
-            } else {
-              throw error;
-            }
-          }
+          console.log('Using Google API through Cloudflare');
+          response = options.stream
+            ? await streamGoogleChat(content, options, apiKey, baseUrl)
+            : await handleGoogleChat(content, options, apiKey, baseUrl);
           break;
 
         case 'mistral':
