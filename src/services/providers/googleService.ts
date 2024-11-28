@@ -6,7 +6,7 @@ export async function handleGoogleChat(
   apiKey: string,
   baseUrl: string
 ): Promise<string> {
-  const url = `${baseUrl}/models/${options.model}:generateContent?key=${apiKey}`;
+  const url = `${baseUrl}/v1/models/${options.model}:generateContent`;
   
   console.log("Making Google AI request to:", url);
   
@@ -14,12 +14,13 @@ export async function handleGoogleChat(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type"
+      "x-goog-api-key": apiKey
     },
     body: JSON.stringify({
-      contents: [{ parts: [{ text: content }] }],
+      contents: [{
+        role: "user",
+        parts: [{ text: content }]
+      }],
       generationConfig: {
         temperature: options.temperature || 0.7,
         maxOutputTokens: options.maxTokens || 2048
@@ -45,18 +46,19 @@ export async function streamGoogleChat(
 ): Promise<string> {
   console.log("Starting Google AI stream request");
   
-  const url = `${baseUrl}/models/${options.model}:streamGenerateContent?key=${apiKey}`;
+  const url = `${baseUrl}/v1/models/${options.model}:streamGenerateContent`;
   
   const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type"
+      "x-goog-api-key": apiKey
     },
     body: JSON.stringify({
-      contents: [{ parts: [{ text: content }] }],
+      contents: [{
+        role: "user",
+        parts: [{ text: content }]
+      }],
       generationConfig: {
         temperature: options.temperature || 0.7,
         maxOutputTokens: options.maxTokens || 2048
@@ -87,7 +89,6 @@ export async function streamGoogleChat(
       const chunk = decoder.decode(value, { stream: true });
       accumulatedJson += chunk;
       
-      // Try to find complete JSON objects
       let startBracket = accumulatedJson.indexOf('[');
       let endBracket = accumulatedJson.lastIndexOf(']');
       
