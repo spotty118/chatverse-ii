@@ -16,7 +16,8 @@ export const Settings = () => {
     anthropic: localStorage.getItem('anthropic_api_key') || '',
     google: localStorage.getItem('google_api_key') || '',
     mistral: localStorage.getItem('mistral_api_key') || '',
-    ollama: localStorage.getItem('ollama_api_key') || ''
+    ollama: localStorage.getItem('ollama_api_key') || '',
+    openrouter: localStorage.getItem('openrouter_api_key') || ''
   });
   const [useCloudflare, setUseCloudflare] = useState(localStorage.getItem('use_cloudflare') === 'true');
   const [cloudflareUrls, setCloudflareUrls] = useState<Record<Provider, string>>({
@@ -24,7 +25,8 @@ export const Settings = () => {
     anthropic: localStorage.getItem('cloudflare_url_anthropic') || '',
     google: localStorage.getItem('cloudflare_url_google') || '',
     mistral: localStorage.getItem('cloudflare_url_mistral') || '',
-    ollama: localStorage.getItem('cloudflare_url_ollama') || ''
+    ollama: localStorage.getItem('cloudflare_url_ollama') || '',
+    openrouter: localStorage.getItem('cloudflare_url_openrouter') || ''
   });
 
   const handleSave = async (provider: Provider, key: string) => {

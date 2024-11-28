@@ -3,7 +3,8 @@ export type Provider =
   | 'anthropic' 
   | 'google' 
   | 'mistral'
-  | 'ollama';
+  | 'ollama'
+  | 'openrouter';
 
 export interface Message {
   id: string;

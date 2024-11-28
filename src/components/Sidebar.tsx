@@ -24,7 +24,6 @@ export const Sidebar = ({
 }: SidebarProps) => {
   const queryClient = useQueryClient();
 
-  // Fetch models for the selected provider
   const { data: models = [] } = useQuery({
     queryKey: ['models', selectedProvider],
     queryFn: () => chatService.getModels(selectedProvider),
@@ -36,7 +35,6 @@ export const Sidebar = ({
     }
   });
 
-  // Effect to handle provider changes and model selection
   useEffect(() => {
     if (models.length > 0 && !selectedModel) {
       console.log("Setting initial model:", models[0]);
@@ -49,7 +47,8 @@ export const Sidebar = ({
     { id: 'anthropic', name: 'Anthropic', icon: '🧠' },
     { id: 'google', name: 'Google AI', icon: '🌐' },
     { id: 'mistral', name: 'Mistral', icon: '🌪️' },
-    { id: 'ollama', name: 'Ollama', icon: '🦙' }
+    { id: 'ollama', name: 'Ollama', icon: '🦙' },
+    { id: 'openrouter', name: 'OpenRouter', icon: '🔄' }
   ];
 
   const handleProviderSelect = async (provider: Provider) => {

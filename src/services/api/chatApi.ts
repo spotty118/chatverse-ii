@@ -17,6 +17,14 @@ const VALID_GOOGLE_MODELS = {
   'gemini-1.5-flash': 'Gemini-1.5-Flash'
 };
 
+// Define valid OpenRouter models with display names
+const VALID_OPENROUTER_MODELS = {
+  'openai/gpt-4-turbo': 'GPT-4 Turbo',
+  'anthropic/claude-3-opus': 'Claude 3 Opus',
+  'google/gemini-pro': 'Gemini Pro',
+  'meta-llama/llama-2-70b-chat': 'Llama 2 70B'
+};
+
 export const chatApi = {
   getModelDisplayName(provider: Provider, modelId: string): string {
     switch (provider) {
@@ -49,6 +57,8 @@ export const chatApi = {
           'codellama': 'Code Llama'
         };
         return ollamaDisplayNames[modelId] || modelId;
+      case 'openrouter':
+        return VALID_OPENROUTER_MODELS[modelId as keyof typeof VALID_OPENROUTER_MODELS] || modelId;
       default:
         return modelId;
     }
@@ -94,6 +104,10 @@ export const chatApi = {
           response = await handleOllamaChat(content, options, baseUrl);
           break;
 
+        case 'openrouter':
+          response = await handleOpenRouterChat(content, options, apiKey, baseUrl);
+          break;
+
         default:
           throw new Error(`Unsupported provider: ${provider}`);
       }
@@ -109,23 +123,6 @@ export const chatApi = {
     } catch (error) {
       console.error("API Error:", error);
       throw error;
-    }
-  },
-
-  getDefaultBaseUrl(provider: Provider): string {
-    switch (provider) {
-      case 'openai':
-        return 'https://api.openai.com/v1';
-      case 'anthropic':
-        return 'https://api.anthropic.com/v1';
-      case 'google':
-        return 'https://generativelanguage.googleapis.com/v1';
-      case 'mistral':
-        return 'https://api.mistral.ai/v1';
-      case 'ollama':
-        return 'http://localhost:11434';
-      default:
-        throw new Error(`No default base URL for provider: ${provider}`);
     }
   },
 
@@ -173,6 +170,18 @@ export const chatApi = {
             modelIds = data.models || [];
           }
           break;
+
+        case 'openrouter':
+          const openrouterResponse = await fetch("https://openrouter.ai/api/v1/models", {
+            headers: {
+              "Authorization": `Bearer ${apiKey}`
+            }
+          });
+          if (openrouterResponse.ok) {
+            const data = await openrouterResponse.json();
+            modelIds = data.data.map((model: any) => model.id);
+          }
+          break;
       }
 
       console.log(`Fetched models for ${provider}:`, modelIds);
@@ -180,6 +189,25 @@ export const chatApi = {
     } catch (error) {
       console.error("Error fetching models:", error);
       return [];
+    }
+  },
+
+  getDefaultBaseUrl(provider: Provider): string {
+    switch (provider) {
+      case 'openai':
+        return 'https://api.openai.com/v1';
+      case 'anthropic':
+        return 'https://api.anthropic.com/v1';
+      case 'google':
+        return 'https://generativelanguage.googleapis.com/v1';
+      case 'mistral':
+        return 'https://api.mistral.ai/v1';
+      case 'ollama':
+        return 'http://localhost:11434';
+      case 'openrouter':
+        return 'https://openrouter.ai/api/v1';
+      default:
+        throw new Error(`No default base URL for provider: ${provider}`);
     }
   }
 };
