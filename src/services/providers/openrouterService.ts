@@ -8,19 +8,15 @@ export async function handleOpenRouterChat(
 ): Promise<string> {
   console.log('Making OpenRouter request to:', baseUrl);
   
-  // If baseUrl is empty, fall back to direct provider URL
   const url = baseUrl || 'https://openrouter.ai/api/v1';
   
   const response = await fetch(`${url}/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      // For direct API calls, use Bearer token
       'Authorization': `Bearer ${apiKey}`,
       'HTTP-Referer': window.location.origin,
-      'X-Title': 'Chat Hub',
-      // Only include api_key for Cloudflare requests
-      ...(baseUrl && { 'api_key': apiKey })
+      'X-Title': 'Chat Hub'
     },
     body: JSON.stringify({
       model: options.model,
@@ -55,12 +51,9 @@ export async function streamOpenRouterChat(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      // For direct API calls, use Bearer token
       "Authorization": `Bearer ${apiKey}`,
       'HTTP-Referer': window.location.origin,
-      'X-Title': 'Chat Hub',
-      // Only include api_key for Cloudflare requests
-      ...(baseUrl && { 'api_key': apiKey })
+      'X-Title': 'Chat Hub'
     },
     body: JSON.stringify({
       model: options.model,
