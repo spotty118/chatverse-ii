@@ -6,15 +6,14 @@ export async function handleGoogleChat(
   apiKey: string,
   baseUrl: string
 ): Promise<string> {
-  const url = `${baseUrl}/v1/models/${options.model}:generateContent`;
+  const url = `${baseUrl}/models/${options.model}:generateContent?key=${apiKey}`;
   
   console.log("Making Google AI request to:", url);
   
   const response = await fetch(url, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
-      "x-goog-api-key": apiKey
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({
       contents: [{
@@ -23,7 +22,10 @@ export async function handleGoogleChat(
       }],
       generationConfig: {
         temperature: options.temperature || 0.7,
-        maxOutputTokens: options.maxTokens || 2048
+        maxOutputTokens: options.maxTokens || 2048,
+        topK: 40,
+        topP: 0.95,
+        responseMimeType: "text/plain"
       }
     })
   });
@@ -46,13 +48,12 @@ export async function streamGoogleChat(
 ): Promise<string> {
   console.log("Starting Google AI stream request");
   
-  const url = `${baseUrl}/v1/models/${options.model}:streamGenerateContent`;
+  const url = `${baseUrl}/models/${options.model}:streamGenerateContent?key=${apiKey}`;
   
   const response = await fetch(url, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
-      "x-goog-api-key": apiKey
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({
       contents: [{
@@ -61,7 +62,10 @@ export async function streamGoogleChat(
       }],
       generationConfig: {
         temperature: options.temperature || 0.7,
-        maxOutputTokens: options.maxTokens || 2048
+        maxOutputTokens: options.maxTokens || 2048,
+        topK: 40,
+        topP: 0.95,
+        responseMimeType: "text/plain"
       }
     })
   });
