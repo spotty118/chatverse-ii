@@ -8,14 +8,18 @@ export async function handleOpenRouterChat(
 ): Promise<string> {
   console.log('Making OpenRouter request to:', baseUrl);
   
-  const response = await fetch(`${baseUrl}/chat/completions`, {
+  // If baseUrl is empty, fall back to direct provider URL
+  const url = baseUrl || 'https://openrouter.ai/api/v1';
+  
+  const response = await fetch(`${url}/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`,
       'HTTP-Referer': window.location.origin,
       'X-Title': 'Chat Hub',
-      'api_key': apiKey // Add the API key as a separate header for Cloudflare
+      // Only include api_key header if using Cloudflare
+      ...(baseUrl && { 'api_key': apiKey })
     },
     body: JSON.stringify({
       model: options.model,
@@ -44,14 +48,18 @@ export async function streamOpenRouterChat(
 ): Promise<string> {
   console.log("Starting OpenRouter stream request to:", baseUrl);
   
-  const response = await fetch(`${baseUrl}/chat/completions`, {
+  // If baseUrl is empty, fall back to direct provider URL
+  const url = baseUrl || 'https://openrouter.ai/api/v1';
+  
+  const response = await fetch(`${url}/chat/completions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${apiKey}`,
       'HTTP-Referer': window.location.origin,
       'X-Title': 'Chat Hub',
-      'api_key': apiKey // Add the API key as a separate header for Cloudflare
+      // Only include api_key header if using Cloudflare
+      ...(baseUrl && { 'api_key': apiKey })
     },
     body: JSON.stringify({
       model: options.model,
