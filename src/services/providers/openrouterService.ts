@@ -25,7 +25,7 @@ export async function handleOpenRouterChat(
   });
 
   if (!response.ok) {
-    console.error('OpenRouter API error:', response.status, response.statusText);
+    console.error('OpenRouter API error:', response.status);
     const error = await response.json().catch(() => ({ error: 'Unknown error' }));
     throw new Error(`OpenRouter API error: ${error.error || response.statusText}`);
   }
@@ -61,7 +61,7 @@ export async function streamOpenRouterChat(
   });
 
   if (!response.ok) {
-    console.error('OpenRouter API error:', response.status, response.statusText);
+    console.error('OpenRouter API error:', response.status);
     const error = await response.json().catch(() => ({ error: 'Unknown error' }));
     throw new Error(`OpenRouter API error: ${error.error || response.statusText}`);
   }
