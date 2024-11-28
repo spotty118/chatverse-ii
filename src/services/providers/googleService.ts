@@ -6,14 +6,17 @@ export async function handleGoogleChat(
   apiKey: string,
   baseUrl: string
 ): Promise<string> {
-  const url = `${baseUrl || 'https://generativelanguage.googleapis.com/v1'}/models/${options.model}:generateContent?key=${apiKey}`;
+  const url = `${baseUrl}/models/${options.model}:generateContent?key=${apiKey}`;
   
   console.log("Making Google AI request to:", url);
   
   const response = await fetch(url, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type"
     },
     body: JSON.stringify({
       contents: [{ parts: [{ text: content }] }],
@@ -42,12 +45,15 @@ export async function streamGoogleChat(
 ): Promise<string> {
   console.log("Starting Google AI stream request");
   
-  const url = `${baseUrl || 'https://generativelanguage.googleapis.com/v1'}/models/${options.model}:streamGenerateContent?key=${apiKey}`;
+  const url = `${baseUrl}/models/${options.model}:streamGenerateContent?key=${apiKey}`;
   
   const response = await fetch(url, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type"
     },
     body: JSON.stringify({
       contents: [{ parts: [{ text: content }] }],
@@ -90,7 +96,6 @@ export async function streamGoogleChat(
           const jsonStr = accumulatedJson.substring(startBracket, endBracket + 1);
           const jsonArray = JSON.parse(jsonStr);
           
-          // Process each object in the array
           for (const obj of jsonArray) {
             const text = obj.candidates?.[0]?.content?.parts?.[0]?.text;
             if (text) {
@@ -100,10 +105,8 @@ export async function streamGoogleChat(
             }
           }
           
-          // Keep any remaining content after the JSON array
           accumulatedJson = accumulatedJson.substring(endBracket + 1);
         } catch (e) {
-          // If parsing fails, keep accumulating
           console.log("Continuing to accumulate JSON chunks");
         }
       }
