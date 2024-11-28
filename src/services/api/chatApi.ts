@@ -25,7 +25,8 @@ export const chatApi = {
     try {
       let response: string;
       const baseUrl = options.baseUrl || getDefaultBaseUrl(provider);
-      console.log(`Using base URL: ${baseUrl}`);
+      const useCloudflare = localStorage.getItem('use_cloudflare') === 'true';
+      console.log(`Using base URL: ${baseUrl}, Cloudflare enabled: ${useCloudflare}`);
 
       switch (provider) {
         case 'openai':
@@ -46,8 +47,9 @@ export const chatApi = {
               ? await streamGoogleChat(content, options, apiKey, baseUrl)
               : await handleGoogleChat(content, options, apiKey, baseUrl);
           } catch (error) {
-            if (error.message?.includes('Failed to fetch') && baseUrl !== getDefaultBaseUrl('google')) {
-              console.log('Falling back to direct Google API');
+            // Only attempt fallback if Cloudflare is disabled
+            if (error.message?.includes('Failed to fetch') && !useCloudflare) {
+              console.log('Cloudflare disabled, falling back to direct Google API');
               const directUrl = getDefaultBaseUrl('google');
               response = options.stream
                 ? await streamGoogleChat(content, options, apiKey, directUrl)
