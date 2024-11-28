@@ -14,6 +14,10 @@ export const handleOpenRouterChat = async (
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`,
       'HTTP-Referer': window.location.origin,
+      'X-Title': 'Chat Hub',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
     },
     body: JSON.stringify({
       model: options.model,
