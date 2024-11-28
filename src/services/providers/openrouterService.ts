@@ -6,7 +6,7 @@ export const handleOpenRouterChat = async (
   apiKey: string,
   baseUrl: string = 'https://openrouter.ai/api/v1'
 ): Promise<string> => {
-  console.log('Sending message to OpenRouter:', { content, model: options.model });
+  console.log('Sending message to OpenRouter:', { content, model: options.model, baseUrl });
   
   const response = await fetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
@@ -14,8 +14,13 @@ export const handleOpenRouterChat = async (
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`,
       'HTTP-Referer': window.location.origin,
-      'X-Title': 'Chat Hub'
+      'X-Title': 'Chat Hub',
+      'Origin': window.location.origin,
+      'Access-Control-Request-Headers': 'authorization,content-type',
+      'Access-Control-Request-Method': 'POST'
     },
+    mode: 'cors',
+    credentials: 'include',
     body: JSON.stringify({
       model: options.model,
       messages: [{ role: 'user', content }],
@@ -25,8 +30,8 @@ export const handleOpenRouterChat = async (
   });
 
   if (!response.ok) {
+    console.error('OpenRouter API error:', response.status, response.statusText);
     const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-    console.error('OpenRouter API error:', error);
     throw new Error(`OpenRouter API error: ${error.error || response.statusText}`);
   }
 
