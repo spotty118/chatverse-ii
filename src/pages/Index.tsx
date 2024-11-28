@@ -94,8 +94,9 @@ const Index = () => {
   };
 
   const handleProviderSelect = (provider: Provider) => {
+    console.log("Switching to provider:", provider);
     setSelectedProvider(provider);
-    setChatState(prev => ({ ...prev, messages: [] })); // Clear messages when changing provider
+    // Removed the chat clearing line to maintain chat history
   };
 
   return (
