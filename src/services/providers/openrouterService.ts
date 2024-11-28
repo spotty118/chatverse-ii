@@ -19,11 +19,7 @@ export async function handleOpenRouterChat(
       'HTTP-Referer': window.location.origin,
       'X-Title': 'Chat Hub',
       // For Cloudflare, include api_key in headers
-      ...(baseUrl ? { 'api_key': apiKey } : {
-        // For direct API, include OpenRouter specific headers
-        'OR-SDK-Version': 'chatverse-1.0',
-        'OR-PREFER-BACKEND': 'openai'
-      })
+      ...(baseUrl && { 'api_key': apiKey })
     },
     body: JSON.stringify({
       model: options.model,
@@ -63,11 +59,7 @@ export async function streamOpenRouterChat(
       'HTTP-Referer': window.location.origin,
       'X-Title': 'Chat Hub',
       // For Cloudflare, include api_key in headers
-      ...(baseUrl ? { 'api_key': apiKey } : {
-        // For direct API, include OpenRouter specific headers
-        'OR-SDK-Version': 'chatverse-1.0',
-        'OR-PREFER-BACKEND': 'openai'
-      })
+      ...(baseUrl && { 'api_key': apiKey })
     },
     body: JSON.stringify({
       model: options.model,
