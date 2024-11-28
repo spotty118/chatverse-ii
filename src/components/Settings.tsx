@@ -19,7 +19,13 @@ export const Settings = () => {
     ollama: localStorage.getItem('ollama_api_key') || ''
   });
   const [useCloudflare, setUseCloudflare] = useState(localStorage.getItem('use_cloudflare') === 'true');
-  const [cloudflareUrl, setCloudflareUrl] = useState(localStorage.getItem('cloudflare_url') || '');
+  const [cloudflareUrls, setCloudflareUrls] = useState<Record<Provider, string>>({
+    openai: localStorage.getItem('cloudflare_url_openai') || '',
+    anthropic: localStorage.getItem('cloudflare_url_anthropic') || '',
+    google: localStorage.getItem('cloudflare_url_google') || '',
+    mistral: localStorage.getItem('cloudflare_url_mistral') || '',
+    ollama: localStorage.getItem('cloudflare_url_ollama') || ''
+  });
 
   const handleSave = async (provider: Provider, key: string) => {
     console.log(`Saving API key for ${provider}`);
@@ -41,20 +47,22 @@ export const Settings = () => {
     localStorage.setItem('use_cloudflare', checked.toString());
     
     if (!checked) {
-      chatService.setBaseUrl(''); // Reset to default direct API
+      chatService.setProviderBaseUrls({}); // Reset to default direct APIs
       toast.success('Switched to direct API calls');
-    } else if (cloudflareUrl) {
-      chatService.setBaseUrl(cloudflareUrl);
+    } else {
+      chatService.setProviderBaseUrls(cloudflareUrls);
       toast.success('Switched to Cloudflare AI Gateway');
     }
   };
 
-  const handleCloudflareUrlSave = () => {
-    console.log('Saving Cloudflare URL:', cloudflareUrl);
-    localStorage.setItem('cloudflare_url', cloudflareUrl);
-    if (useCloudflare && cloudflareUrl) {
-      chatService.setBaseUrl(cloudflareUrl);
-      toast.success('Cloudflare AI Gateway URL updated');
+  const handleCloudflareUrlSave = (provider: Provider, url: string) => {
+    console.log(`Saving Cloudflare URL for ${provider}:`, url);
+    localStorage.setItem(`cloudflare_url_${provider}`, url);
+    setCloudflareUrls(prev => ({ ...prev, [provider]: url }));
+    
+    if (useCloudflare) {
+      chatService.setProviderBaseUrls({ ...cloudflareUrls, [provider]: url });
+      toast.success(`Cloudflare AI Gateway URL for ${provider} updated`);
     }
   };
 
@@ -80,19 +88,23 @@ export const Settings = () => {
           </div>
 
           {useCloudflare && (
-            <div className="grid grid-cols-4 items-center gap-4 mb-4">
-              <Label htmlFor="cloudflare-url" className="text-right">
-                Gateway URL:
-              </Label>
-              <div className="col-span-3">
-                <Input
-                  id="cloudflare-url"
-                  value={cloudflareUrl}
-                  onChange={(e) => setCloudflareUrl(e.target.value)}
-                  onBlur={handleCloudflareUrlSave}
-                  placeholder="Enter Cloudflare AI Gateway URL"
-                />
-              </div>
+            <div className="space-y-4">
+              {Object.entries(cloudflareUrls).map(([provider, url]) => (
+                <div key={provider} className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor={`cloudflare-url-${provider}`} className="text-right capitalize">
+                    {provider} URL:
+                  </Label>
+                  <div className="col-span-3">
+                    <Input
+                      id={`cloudflare-url-${provider}`}
+                      value={url}
+                      onChange={(e) => setCloudflareUrls(prev => ({ ...prev, [provider]: e.target.value }))}
+                      onBlur={(e) => handleCloudflareUrlSave(provider as Provider, e.target.value)}
+                      placeholder={`Enter ${provider} Cloudflare Gateway URL`}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 

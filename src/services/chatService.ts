@@ -10,24 +10,36 @@ class ChatService {
     context: "",
     streaming: false
   };
-  private baseUrl: string = '';
+  private providerBaseUrls: Record<Provider, string> = {
+    openai: '',
+    anthropic: '',
+    google: '',
+    mistral: '',
+    ollama: ''
+  };
   private subscribers: ((state: ChatState) => void)[] = [];
 
   constructor() {
     console.log("ChatService initialized");
     const useCloudflare = localStorage.getItem('use_cloudflare') === 'true';
     if (useCloudflare) {
-      this.baseUrl = localStorage.getItem('cloudflare_url') || '';
+      this.providerBaseUrls = {
+        openai: localStorage.getItem('cloudflare_url_openai') || '',
+        anthropic: localStorage.getItem('cloudflare_url_anthropic') || '',
+        google: localStorage.getItem('cloudflare_url_google') || '',
+        mistral: localStorage.getItem('cloudflare_url_mistral') || '',
+        ollama: localStorage.getItem('cloudflare_url_ollama') || ''
+      };
     }
   }
 
-  setBaseUrl(url: string) {
-    console.log("Setting base URL:", url);
-    this.baseUrl = url;
+  setProviderBaseUrls(urls: Partial<Record<Provider, string>>) {
+    console.log("Setting provider base URLs:", urls);
+    this.providerBaseUrls = { ...this.providerBaseUrls, ...urls };
   }
 
-  getBaseUrl(): string {
-    return this.baseUrl;
+  getBaseUrl(provider: Provider): string {
+    return this.providerBaseUrls[provider] || '';
   }
 
   subscribe(callback: (state: ChatState) => void) {
@@ -83,7 +95,7 @@ class ChatService {
 
       const response = await chatApi.sendMessage(content, provider, {
         ...options,
-        baseUrl: this.baseUrl
+        baseUrl: this.getBaseUrl(provider)
       });
 
       const updatedMessages = this.state.messages.map(msg => 
