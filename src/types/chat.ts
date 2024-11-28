@@ -44,6 +44,7 @@ export interface ChatOptions {
   stream?: boolean;
   functions?: ChatFunction[];
   context?: string;
+  attachments?: File[];
 }
 
 export interface ChatFunction {
