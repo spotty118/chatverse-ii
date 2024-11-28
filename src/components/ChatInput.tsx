@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Send, Image, Paperclip, Smile } from "lucide-react";
+import { Plus, Send, Image, Paperclip, Smile, Square } from "lucide-react";
 import { useState, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supportsAttachments } from "@/utils/providerCapabilities";
@@ -8,11 +8,13 @@ import { Provider } from "@/types/chat";
 
 interface ChatInputProps {
   onSend: (message: string, attachments?: File[]) => void;
+  onStop: () => void;
   disabled?: boolean;
   provider: Provider;
+  streaming?: boolean;
 }
 
-export const ChatInput = ({ onSend, disabled, provider }: ChatInputProps) => {
+export const ChatInput = ({ onSend, onStop, disabled, provider, streaming }: ChatInputProps) => {
   const [message, setMessage] = useState("");
   const [attachments, setAttachments] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -183,13 +185,25 @@ export const ChatInput = ({ onSend, disabled, provider }: ChatInputProps) => {
           <Smile className="h-4 w-4" />
         </Button>
         
-        <Button 
-          onClick={handleSend} 
-          disabled={disabled}
-          className="bg-chat-blue hover:bg-chat-blue/90 text-white px-6"
-        >
-          Send
-        </Button>
+        {streaming ? (
+          <Button 
+            onClick={onStop}
+            variant="destructive"
+            className="px-6"
+          >
+            <Square className="h-4 w-4 mr-2" />
+            Stop
+          </Button>
+        ) : (
+          <Button 
+            onClick={handleSend} 
+            disabled={disabled}
+            className="bg-chat-blue hover:bg-chat-blue/90 text-white px-6"
+          >
+            <Send className="h-4 w-4 mr-2" />
+            Send
+          </Button>
+        )}
       </div>
     </div>
   );

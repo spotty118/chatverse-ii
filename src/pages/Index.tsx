@@ -95,6 +95,12 @@ const Index = () => {
     }
   };
 
+  const handleStopResponse = () => {
+    console.log("Stopping response stream");
+    chatService.stopStream();
+    toast.success("Response stopped");
+  };
+
   const handleClearChat = () => {
     console.log("Clearing chat history");
     chatService.clearMessages();
@@ -131,9 +137,11 @@ const Index = () => {
         </ScrollArea>
 
         <ChatInput 
-          onSend={handleSendMessage} 
+          onSend={handleSendMessage}
+          onStop={handleStopResponse}
           disabled={chatState.streaming}
           provider={selectedProvider}
+          streaming={chatState.streaming}
         />
       </div>
     </div>

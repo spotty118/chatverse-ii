@@ -19,6 +19,7 @@ class ChatService {
     openrouter: ''
   };
   private subscribers: ((state: ChatState) => void)[] = [];
+  private abortController: AbortController | null = null;
 
   constructor() {
     console.log("ChatService initialized");
@@ -57,9 +58,13 @@ class ChatService {
     console.log("State updated:", this.state);
   }
 
-  setApiKey(provider: Provider, key: string) {
-    console.log(`Setting API key for ${provider}`);
-    localStorage.setItem(`${provider}_api_key`, key);
+  stopStream() {
+    console.log("Stopping stream");
+    if (this.abortController) {
+      this.abortController.abort();
+      this.abortController = null;
+      this.updateState({ streaming: false });
+    }
   }
 
   async sendMessage(
@@ -71,6 +76,7 @@ class ChatService {
     
     try {
       this.updateState({ streaming: true });
+      this.abortController = new AbortController();
 
       const userMessage: Message = {
         id: uuidv4(),
@@ -97,7 +103,8 @@ class ChatService {
 
       const response = await chatApi.sendMessage(content, provider, {
         ...options,
-        baseUrl: this.getBaseUrl(provider)
+        baseUrl: this.getBaseUrl(provider),
+        signal: this.abortController.signal
       });
 
       const updatedMessages = this.state.messages.map(msg => 
@@ -113,16 +120,23 @@ class ChatService {
     } catch (error) {
       console.error("Error sending message:", error);
       
-      const messagesWithoutPending = this.state.messages.filter(
-        msg => msg.pending !== true
-      );
-      
-      this.updateState({
-        messages: messagesWithoutPending,
-        streaming: false
-      });
+      // Don't show error toast if the request was intentionally aborted
+      if (error.name !== 'AbortError') {
+        const messagesWithoutPending = this.state.messages.filter(
+          msg => msg.pending !== true
+        );
+        
+        this.updateState({
+          messages: messagesWithoutPending,
+          streaming: false
+        });
 
-      throw error;
+        throw error;
+      }
+      
+      // For aborted requests, just update streaming state
+      this.updateState({ streaming: false });
+      return {} as Message;
     }
   }
 
