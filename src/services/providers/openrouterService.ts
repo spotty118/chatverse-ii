@@ -14,11 +14,8 @@ export async function handleOpenRouterChat(
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`,
       'HTTP-Referer': window.location.origin,
-      'X-Title': 'Chat Hub',
-      'Origin': window.location.origin
+      'X-Title': 'Chat Hub'
     },
-    mode: 'cors',
-    credentials: 'include',
     body: JSON.stringify({
       model: options.model,
       messages: [{ role: 'user', content }],
@@ -52,11 +49,8 @@ export async function streamOpenRouterChat(
       "Content-Type": "application/json",
       "Authorization": `Bearer ${apiKey}`,
       'HTTP-Referer': window.location.origin,
-      'X-Title': 'Chat Hub',
-      'Origin': window.location.origin
+      'X-Title': 'Chat Hub'
     },
-    mode: 'cors',
-    credentials: 'include',
     body: JSON.stringify({
       model: options.model,
       messages: [{ role: "user", content }],
