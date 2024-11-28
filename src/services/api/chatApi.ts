@@ -4,13 +4,7 @@ import { handleAnthropicChat, streamAnthropicChat } from "../providers/anthropic
 import { handleGoogleChat, streamGoogleChat } from "../providers/googleService";
 import { handleMistralChat } from "../providers/mistralService";
 import { handleOllamaChat } from "../providers/ollamaService";
-import { handleOpenRouterChat, streamOpenRouterChat } from "../providers/openrouterService";
-import { handleOpenAICloudflareChat, streamOpenAICloudflareChat } from "../providers/cloudflare/openaiCloudflare";
-import { handleAnthropicCloudflareChat, streamAnthropicCloudflareChat } from "../providers/cloudflare/anthropicCloudflare";
-import { handleGoogleCloudflareChat, streamGoogleCloudflareChat } from "../providers/cloudflare/googleCloudflare";
-import { handleMistralCloudflareChat } from "../providers/cloudflare/mistralCloudflare";
-import { handleOllamaCloudflareChat } from "../providers/cloudflare/ollamaCloudflare";
-import { handleOpenRouterCloudflareChat, streamOpenRouterCloudflareChat } from "../providers/cloudflare/openrouterCloudflare";
+import { handleOpenRouterChat } from "../providers/openrouterService";
 import { PROVIDER_MODEL_NAMES } from "./modelDefinitions";
 import { getDefaultBaseUrl } from "./baseUrls";
 
@@ -31,60 +25,49 @@ export const chatApi = {
     try {
       let response: string;
       const baseUrl = options.baseUrl || getDefaultBaseUrl(provider);
-      const useCloudflare = localStorage.getItem('use_cloudflare') === 'true';
       console.log(`Using base URL: ${baseUrl}`);
 
       switch (provider) {
         case 'openai':
           response = options.stream 
-            ? useCloudflare
-              ? await streamOpenAICloudflareChat(content, options, apiKey, baseUrl)
-              : await streamOpenAIChat(content, options, apiKey, baseUrl)
-            : useCloudflare
-              ? await handleOpenAICloudflareChat(content, options, apiKey, baseUrl)
-              : await handleOpenAIChat(content, options, apiKey, baseUrl);
+            ? await streamOpenAIChat(content, options, apiKey, baseUrl)
+            : await handleOpenAIChat(content, options, apiKey, baseUrl);
           break;
 
         case 'anthropic':
           response = options.stream
-            ? useCloudflare
-              ? await streamAnthropicCloudflareChat(content, options, apiKey, baseUrl)
-              : await streamAnthropicChat(content, options, apiKey, baseUrl)
-            : useCloudflare
-              ? await handleAnthropicCloudflareChat(content, options, apiKey, baseUrl)
-              : await handleAnthropicChat(content, options, apiKey, baseUrl);
+            ? await streamAnthropicChat(content, options, apiKey, baseUrl)
+            : await handleAnthropicChat(content, options, apiKey, baseUrl);
           break;
 
         case 'google':
-          response = options.stream
-            ? useCloudflare
-              ? await streamGoogleCloudflareChat(content, options, apiKey, baseUrl)
-              : await streamGoogleChat(content, options, apiKey, baseUrl)
-            : useCloudflare
-              ? await handleGoogleCloudflareChat(content, options, apiKey, baseUrl)
+          try {
+            response = options.stream
+              ? await streamGoogleChat(content, options, apiKey, baseUrl)
               : await handleGoogleChat(content, options, apiKey, baseUrl);
+          } catch (error) {
+            if (error.message?.includes('Failed to fetch') && baseUrl !== getDefaultBaseUrl('google')) {
+              console.log('Falling back to direct Google API');
+              const directUrl = getDefaultBaseUrl('google');
+              response = options.stream
+                ? await streamGoogleChat(content, options, apiKey, directUrl)
+                : await handleGoogleChat(content, options, apiKey, directUrl);
+            } else {
+              throw error;
+            }
+          }
           break;
 
         case 'mistral':
-          response = useCloudflare
-            ? await handleMistralCloudflareChat(content, options, apiKey, baseUrl)
-            : await handleMistralChat(content, options, apiKey, baseUrl);
+          response = await handleMistralChat(content, options, apiKey, baseUrl);
           break;
 
         case 'ollama':
-          response = useCloudflare
-            ? await handleOllamaCloudflareChat(content, options, baseUrl)
-            : await handleOllamaChat(content, options, baseUrl);
+          response = await handleOllamaChat(content, options, baseUrl);
           break;
 
         case 'openrouter':
-          response = options.stream
-            ? useCloudflare
-              ? await streamOpenRouterCloudflareChat(content, options, apiKey, baseUrl)
-              : await streamOpenRouterChat(content, options, apiKey, baseUrl)
-            : useCloudflare
-              ? await handleOpenRouterCloudflareChat(content, options, apiKey, baseUrl)
-              : await handleOpenRouterChat(content, options, apiKey, baseUrl);
+          response = await handleOpenRouterChat(content, options, apiKey, baseUrl);
           break;
 
         default:
