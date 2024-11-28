@@ -8,7 +8,7 @@ export async function handleOpenRouterChat(
 ): Promise<string> {
   console.log('Making OpenRouter request to:', baseUrl);
   
-  const response = await fetch(`${baseUrl}/chat/completions`, {
+  const response = await fetch(`${baseUrl}/openrouter/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -43,7 +43,7 @@ export async function streamOpenRouterChat(
 ): Promise<string> {
   console.log("Starting OpenRouter stream request to:", baseUrl);
   
-  const response = await fetch(`${baseUrl}/chat/completions`, {
+  const response = await fetch(`${baseUrl}/openrouter/chat/completions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -79,7 +79,7 @@ export async function streamOpenRouterChat(
       const { done, value } = await reader.read();
       if (done) break;
 
-      const chunk = decoder.decode(value, { stream: true });
+      const chunk = decoder.decode(value);
       const lines = chunk.split('\n').filter(line => line.trim() !== '');
 
       for (const line of lines) {
@@ -89,9 +89,8 @@ export async function streamOpenRouterChat(
 
           try {
             const parsed = JSON.parse(data);
-            const content = parsed.choices[0]?.delta?.content;
+            const content = parsed.choices[0]?.delta?.content || '';
             if (content) {
-              console.log("Received text chunk:", content);
               onChunk?.(content);
               fullContent += content;
             }
@@ -101,10 +100,9 @@ export async function streamOpenRouterChat(
         }
       }
     }
-    
-    console.log("OpenRouter stream completed");
-    return fullContent;
   } finally {
     reader.releaseLock();
   }
+
+  return fullContent;
 }
