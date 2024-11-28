@@ -20,7 +20,6 @@ const Index = () => {
   const [selectedModel, setSelectedModel] = useState('');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  // Fetch available models for the selected provider
   const { data: models } = useQuery({
     queryKey: ['models', selectedProvider],
     queryFn: () => chatService.getModels(selectedProvider),
@@ -74,8 +73,8 @@ const Index = () => {
     }
   }, [models, selectedModel]);
 
-  const handleSendMessage = async (content: string) => {
-    console.log("Handling send message:", content);
+  const handleSendMessage = async (content: string, attachments?: File[]) => {
+    console.log("Handling send message:", { content, attachments });
     
     if (!selectedModel) {
       toast.error("Please select a model first");
@@ -87,7 +86,8 @@ const Index = () => {
         model: selectedModel,
         temperature: 0.7,
         maxTokens: 2048,
-        stream: true
+        stream: true,
+        attachments
       });
     } catch (error) {
       console.error("Error in chat:", error);
@@ -124,6 +124,7 @@ const Index = () => {
                 content={msg.content} 
                 isUser={msg.isUser} 
                 pending={msg.pending}
+                attachments={msg.metadata?.attachments}
               />
             ))}
           </div>
@@ -131,7 +132,8 @@ const Index = () => {
 
         <ChatInput 
           onSend={handleSendMessage} 
-          disabled={chatState.streaming} 
+          disabled={chatState.streaming}
+          provider={selectedProvider}
         />
       </div>
     </div>
