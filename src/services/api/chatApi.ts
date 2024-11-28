@@ -41,9 +41,21 @@ export const chatApi = {
           break;
 
         case 'google':
-          response = options.stream
-            ? await streamGoogleChat(content, options, apiKey, baseUrl)
-            : await handleGoogleChat(content, options, apiKey, baseUrl);
+          try {
+            response = options.stream
+              ? await streamGoogleChat(content, options, apiKey, baseUrl)
+              : await handleGoogleChat(content, options, apiKey, baseUrl);
+          } catch (error) {
+            if (error.message?.includes('Failed to fetch') && baseUrl !== getDefaultBaseUrl('google')) {
+              console.log('Falling back to direct Google API');
+              const directUrl = getDefaultBaseUrl('google');
+              response = options.stream
+                ? await streamGoogleChat(content, options, apiKey, directUrl)
+                : await handleGoogleChat(content, options, apiKey, directUrl);
+            } else {
+              throw error;
+            }
+          }
           break;
 
         case 'mistral':
