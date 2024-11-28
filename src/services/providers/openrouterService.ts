@@ -8,17 +8,14 @@ export async function handleOpenRouterChat(
 ): Promise<string> {
   console.log('Making OpenRouter request to:', baseUrl);
   
-  const response = await fetch(`${baseUrl}/chat/completions`, {
+  const response = await fetch(`${baseUrl}/openrouter/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`,
       'HTTP-Referer': window.location.origin,
-      'X-Title': 'Chat Hub',
-      'Origin': window.location.origin
+      'X-Title': 'Chat Hub'
     },
-    mode: 'cors',
-    credentials: 'include',
     body: JSON.stringify({
       model: options.model,
       messages: [{ role: 'user', content }],
@@ -46,17 +43,14 @@ export async function streamOpenRouterChat(
 ): Promise<string> {
   console.log("Starting OpenRouter stream request to:", baseUrl);
   
-  const response = await fetch(`${baseUrl}/chat/completions`, {
+  const response = await fetch(`${baseUrl}/openrouter/chat/completions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${apiKey}`,
       'HTTP-Referer': window.location.origin,
-      'X-Title': 'Chat Hub',
-      'Origin': window.location.origin
+      'X-Title': 'Chat Hub'
     },
-    mode: 'cors',
-    credentials: 'include',
     body: JSON.stringify({
       model: options.model,
       messages: [{ role: "user", content }],
@@ -101,7 +95,7 @@ export async function streamOpenRouterChat(
               fullContent += content;
             }
           } catch (e) {
-            console.error('Error parsing streaming response:', e);
+            console.log("Error parsing chunk:", e);
           }
         }
       }
