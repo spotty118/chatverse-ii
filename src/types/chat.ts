@@ -45,6 +45,7 @@ export interface ChatOptions {
   functions?: ChatFunction[];
   context?: string;
   attachments?: File[];
+  signal?: AbortSignal;
 }
 
 export interface ChatFunction {

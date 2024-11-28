@@ -58,6 +58,11 @@ class ChatService {
     console.log("State updated:", this.state);
   }
 
+  setApiKey(provider: Provider, key: string) {
+    console.log(`Setting API key for ${provider}`);
+    localStorage.setItem(`${provider}_api_key`, key);
+  }
+
   stopStream() {
     console.log("Stopping stream");
     if (this.abortController) {
@@ -104,8 +109,8 @@ class ChatService {
       const response = await chatApi.sendMessage(content, provider, {
         ...options,
         baseUrl: this.getBaseUrl(provider),
-        signal: this.abortController.signal
-      });
+        signal: this.abortController?.signal
+      } as ChatOptions & { baseUrl?: string; signal?: AbortSignal });
 
       const updatedMessages = this.state.messages.map(msg => 
         msg.id === pendingMessage.id ? { ...response, id: msg.id } : msg
@@ -120,7 +125,6 @@ class ChatService {
     } catch (error) {
       console.error("Error sending message:", error);
       
-      // Don't show error toast if the request was intentionally aborted
       if (error.name !== 'AbortError') {
         const messagesWithoutPending = this.state.messages.filter(
           msg => msg.pending !== true
@@ -134,7 +138,6 @@ class ChatService {
         throw error;
       }
       
-      // For aborted requests, just update streaming state
       this.updateState({ streaming: false });
       return {} as Message;
     }
