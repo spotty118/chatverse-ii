@@ -21,9 +21,7 @@ export const handleOpenRouterChat = async (
       messages: [{ role: 'user', content }],
       temperature: options.temperature,
       max_tokens: options.maxTokens,
-    }),
-    credentials: 'include',
-    mode: 'cors'
+    })
   });
 
   if (!response.ok) {
