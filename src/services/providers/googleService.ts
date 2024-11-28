@@ -6,31 +6,30 @@ export async function handleGoogleChat(
   apiKey: string,
   baseUrl: string
 ): Promise<string> {
-  const url = `${baseUrl}/models/${options.model}:generateContent?key=${apiKey}`;
+  const url = `${baseUrl}/v1/models/${options.model}:generateContent`;
   
   console.log("Making Google AI request to:", url);
   
   const response = await fetch(url, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "x-goog-api-key": apiKey
     },
     body: JSON.stringify({
       contents: [{
+        role: "user",
         parts: [{ text: content }]
       }],
       generationConfig: {
         temperature: options.temperature || 0.7,
-        maxOutputTokens: options.maxTokens || 2048,
-        topK: 40,
-        topP: 0.95
+        maxOutputTokens: options.maxTokens || 2048
       }
     })
   });
 
   if (!response.ok) {
     const error = await response.json();
-    console.error("Google AI Error:", error);
     throw new Error(error.error?.message || "Failed to get response from Google AI");
   }
 
@@ -47,30 +46,29 @@ export async function streamGoogleChat(
 ): Promise<string> {
   console.log("Starting Google AI stream request");
   
-  const url = `${baseUrl}/models/${options.model}:streamGenerateContent?key=${apiKey}`;
+  const url = `${baseUrl}/v1/models/${options.model}:streamGenerateContent`;
   
   const response = await fetch(url, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "x-goog-api-key": apiKey
     },
     body: JSON.stringify({
       contents: [{
+        role: "user",
         parts: [{ text: content }]
       }],
       generationConfig: {
         temperature: options.temperature || 0.7,
-        maxOutputTokens: options.maxTokens || 2048,
-        topK: 40,
-        topP: 0.95
+        maxOutputTokens: options.maxTokens || 2048
       }
     })
   });
 
   if (!response.ok) {
     const error = await response.json();
-    console.error("Google AI Stream Error:", error);
-    throw new Error("Failed to get streaming response from Google AI");
+    throw new Error(error.error?.message || "Failed to get streaming response from Google AI");
   }
 
   const reader = response.body?.getReader();
@@ -82,24 +80,36 @@ export async function streamGoogleChat(
   }
 
   try {
+    let accumulatedJson = "";
+    
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
 
       const chunk = decoder.decode(value, { stream: true });
-      try {
-        const lines = chunk.split('\n').filter(line => line.trim());
-        for (const line of lines) {
-          const data = JSON.parse(line);
-          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (text) {
-            console.log("Received text chunk:", text);
-            onChunk?.(text);
-            fullContent += text;
+      accumulatedJson += chunk;
+      
+      let startBracket = accumulatedJson.indexOf('[');
+      let endBracket = accumulatedJson.lastIndexOf(']');
+      
+      if (startBracket !== -1 && endBracket !== -1 && startBracket < endBracket) {
+        try {
+          const jsonStr = accumulatedJson.substring(startBracket, endBracket + 1);
+          const jsonArray = JSON.parse(jsonStr);
+          
+          for (const obj of jsonArray) {
+            const text = obj.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text) {
+              console.log("Received text chunk:", text);
+              onChunk?.(text);
+              fullContent += text;
+            }
           }
+          
+          accumulatedJson = accumulatedJson.substring(endBracket + 1);
+        } catch (e) {
+          console.log("Continuing to accumulate JSON chunks");
         }
-      } catch (e) {
-        console.warn("Error parsing chunk:", e);
       }
     }
     
