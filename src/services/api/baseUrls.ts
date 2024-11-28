@@ -7,7 +7,7 @@ export const getDefaultBaseUrl = (provider: Provider): string => {
     case 'anthropic':
       return 'https://api.anthropic.com/v1';
     case 'google':
-      return 'https://generativelanguage.googleapis.com/v1';
+      return 'https://generativelanguage.googleapis.com/v1beta';
     case 'mistral':
       return 'https://api.mistral.ai/v1';
     case 'ollama':
