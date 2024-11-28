@@ -4,6 +4,7 @@ import { handleAnthropicChat, streamAnthropicChat } from "../providers/anthropic
 import { handleGoogleChat, streamGoogleChat } from "../providers/googleService";
 import { handleMistralChat } from "../providers/mistralService";
 import { handleOllamaChat } from "../providers/ollamaService";
+import { handleOpenRouterChat } from "../providers/openrouterService";
 
 // Define valid OpenAI models with display names
 const VALID_OPENAI_MODELS = {

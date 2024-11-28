@@ -15,7 +15,8 @@ class ChatService {
     anthropic: '',
     google: '',
     mistral: '',
-    ollama: ''
+    ollama: '',
+    openrouter: ''
   };
   private subscribers: ((state: ChatState) => void)[] = [];
 
@@ -28,7 +29,8 @@ class ChatService {
         anthropic: localStorage.getItem('cloudflare_url_anthropic') || '',
         google: localStorage.getItem('cloudflare_url_google') || '',
         mistral: localStorage.getItem('cloudflare_url_mistral') || '',
-        ollama: localStorage.getItem('cloudflare_url_ollama') || ''
+        ollama: localStorage.getItem('cloudflare_url_ollama') || '',
+        openrouter: localStorage.getItem('cloudflare_url_openrouter') || ''
       };
     }
   }
