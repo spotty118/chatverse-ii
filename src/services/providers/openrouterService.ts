@@ -1,12 +1,12 @@
 import { ChatOptions } from "@/types/chat";
 
-export const handleOpenRouterChat = async (
+export async function handleOpenRouterChat(
   content: string,
   options: ChatOptions,
   apiKey: string,
-  baseUrl: string = 'https://openrouter.ai/api/v1'
-): Promise<string> => {
-  console.log('Sending message to OpenRouter:', { content, model: options.model, baseUrl });
+  baseUrl: string
+): Promise<string> {
+  console.log('Making OpenRouter request to:', baseUrl);
   
   const response = await fetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
@@ -19,8 +19,8 @@ export const handleOpenRouterChat = async (
     body: JSON.stringify({
       model: options.model,
       messages: [{ role: 'user', content }],
-      temperature: options.temperature,
-      max_tokens: options.maxTokens,
+      temperature: options.temperature || 0.7,
+      max_tokens: options.maxTokens || 2048
     })
   });
 
@@ -32,16 +32,16 @@ export const handleOpenRouterChat = async (
 
   const data = await response.json();
   return data.choices[0].message.content;
-};
+}
 
 export async function streamOpenRouterChat(
   content: string,
   options: ChatOptions,
   apiKey: string,
-  baseUrl: string = 'https://openrouter.ai/api/v1',
+  baseUrl: string,
   onChunk?: (chunk: string) => void
 ): Promise<string> {
-  console.log("Starting OpenRouter stream request");
+  console.log("Starting OpenRouter stream request to:", baseUrl);
   
   const response = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
