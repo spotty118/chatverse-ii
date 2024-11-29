@@ -45,7 +45,7 @@ const Drawer: FC<Props> = ({ isOpen, onClose, children, position = 'left', class
     bottom: 'translate-y-[100%]',
   }
 
-  return createPortal(
+  const drawerContent = (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50">
       <div
         ref={drawerRef}
@@ -58,9 +58,10 @@ const Drawer: FC<Props> = ({ isOpen, onClose, children, position = 'left', class
       >
         {children}
       </div>
-    </div>,
-    document.body,
+    </div>
   )
+
+  return createPortal(drawerContent, document.body)
 }
 
 export default Drawer

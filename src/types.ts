@@ -1,3 +1,5 @@
+import { ChatError } from '~utils/errors'
+
 export interface ChatMessageModel {
   id: string
   text: string
