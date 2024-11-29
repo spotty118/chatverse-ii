@@ -5,7 +5,6 @@ import { BeatLoader } from 'react-spinners'
 import { ChatMessageModel } from '~/types'
 import Markdown from '../Markdown'
 import ErrorAction from './ErrorAction'
-import MessageBubble from './MessageBubble'
 
 const COPY_ICON_CLASS = 'self-top cursor-pointer invisible group-hover:visible mt-[12px] text-primary-text'
 
@@ -47,21 +46,44 @@ const ChatMessageCard: FC<Props> = ({ message, className }) => {
   }
 
   return (
-    <div className={cx('group flex gap-3 w-full', message.author === 'user' ? 'flex-row-reverse' : 'flex-row', className)}>
+    <div 
+      className={cx(
+        'group flex gap-3 w-full animate-[fadeIn_0.3s_ease-in-out]',
+        message.author === 'user' ? 'flex-row-reverse' : 'flex-row',
+        className
+      )}
+    >
       <div className="flex flex-col w-11/12 max-w-fit items-start gap-2">
-        <MessageBubble color={message.author === 'user' ? 'primary' : 'flat'}>
+        <div
+          className={cx(
+            'px-4 py-2 rounded-lg',
+            message.author === 'user'
+              ? 'bg-blue-500 text-white dark:bg-blue-600'
+              : 'bg-gray-100 dark:bg-gray-800'
+          )}
+        >
           {!!imageUrl && <img src={imageUrl} className="max-w-xs my-2" alt="Message attachment" />}
           {message.text ? (
             <Markdown>{message.text}</Markdown>
           ) : (
-            !message.error && <BeatLoader size={10} className="leading-tight" color="rgb(var(--primary-text))" />
+            !message.error && <div className="flex items-center justify-center h-6">
+              <BeatLoader size={8} color="currentColor" />
+            </div>
           )}
           {!!message.error && <p className="text-[#cc0000] dark:text-[#ff0033]">{message.error.message}</p>}
-        </MessageBubble>
+        </div>
         {!!message.error && <ErrorAction error={message.error} />}
       </div>
       {!!copyText && (
-        <div role="button" tabIndex={0} className={COPY_ICON_CLASS} onClick={handleCopy}>
+        <div
+          role="button"
+          tabIndex={0}
+          className={cx(
+            COPY_ICON_CLASS,
+            'opacity-0 group-hover:opacity-100 transition-opacity duration-200'
+          )}
+          onClick={handleCopy}
+        >
           {copied ? <IoCheckmarkSharp size={16} /> : <IoCopyOutline size={16} />}
         </div>
       )}

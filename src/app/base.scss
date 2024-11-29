@@ -63,15 +63,64 @@ body {
 @layer base {
   :root {
     opacity: 0.88;
+    color-scheme: light dark;
   }
 }
 
 :root.light {
   @include light-theme;
+  --bg-primary: #ffffff;
+  --text-primary: #000000;
+  --border-color: #e5e7eb;
   @import 'highlight.js/scss/github.scss';
 }
 
 :root.dark {
   @include dark-theme;
+  --bg-primary: #1a1b1e;
+  --text-primary: #ffffff;
+  --border-color: #2d2d2d;
   @import 'highlight.js/scss/github-dark.scss';
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@keyframes slideFromBottom {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.button {
+  @apply px-4 py-2 rounded-md transition-colors;
+  &:hover {
+    @apply bg-opacity-90;
+  }
+  &:active {
+    @apply bg-opacity-100;
+  }
+}
+
+.input {
+  @apply px-4 py-2 rounded-md border border-gray-300 dark:border-gray-700;
+  &:focus {
+    @apply outline-none border-blue-500;
+  }
 }
