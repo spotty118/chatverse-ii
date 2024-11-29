@@ -45,7 +45,7 @@ const Drawer: FC<Props> = ({ isOpen, onClose, children, position = 'left', class
     bottom: 'translate-y-[100%]',
   }
 
-  const drawerContent = (
+  return createPortal(
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50">
       <div
         ref={drawerRef}
@@ -58,10 +58,9 @@ const Drawer: FC<Props> = ({ isOpen, onClose, children, position = 'left', class
       >
         {children}
       </div>
-    </div>
-  ) as React.ReactElement
-
-  return createPortal(drawerContent, document.body)
+    </div>,
+    document.body
+  )
 }
 
 export default Drawer
