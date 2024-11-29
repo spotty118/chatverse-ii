@@ -59,7 +59,7 @@ const Drawer: FC<Props> = ({ isOpen, onClose, children, position = 'left', class
         {children}
       </div>
     </div>,
-    document.body,
+    document.body
   )
 }
 
