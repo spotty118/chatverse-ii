@@ -11,7 +11,9 @@ const container = document.getElementById('app')!
 const root = createRoot(container)
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <React.Fragment>
+      <RouterProvider router={router} />
+    </React.Fragment>
   </React.StrictMode>
 )
 
