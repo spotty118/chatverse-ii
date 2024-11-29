@@ -9,7 +9,7 @@
     "build:dev": "vite build --mode development"
   },
   "devDependencies": {
-    "@crxjs/vite-plugin": "2.0.0-beta.21",
+    "@crxjs/vite-plugin": "^1.0.14",
     "@headlessui/tailwindcss": "^0.2.0",
     "@types/cookie": "^0.6.0",
     "@types/humanize-duration": "^3.27.3",
@@ -108,7 +108,7 @@
     "turndown": "^7.1.2",
     "unified": "^10.1.2",
     "uuid": "^9.0.1",
-    "webextension-polyfill": "^0.10.0",
+    "webextension-polyfill": "^0.12.0",
     "websocket-as-promised": "^2.0.1"
   },
   "packageManager": "yarn@4.0.1"
