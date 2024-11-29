@@ -32,19 +32,19 @@ function CustomCode({ children, className }: CustomCodeProps) {
     <div className="flex flex-col">
       <div className="bg-[#e6e7e8] dark:bg-[#444a5354] text-xs p-2">
         <CopyToClipboard text={code} onCopy={() => setCopied(true)}>
-          <div>
+          <button type="button" className="flex flex-row items-center gap-2 w-fit ml-1 cursor-pointer">
             {copied ? (
-              <div className="flex flex-row items-center gap-2 w-fit ml-1 cursor-pointer">
+              <>
                 <BsClipboard />
                 <span>copied</span>
-              </div>
+              </>
             ) : (
-              <div className="flex flex-row items-center gap-2 w-fit ml-1 cursor-pointer">
+              <>
                 <BsClipboard />
                 <span>copy code</span>
-              </div>
+              </>
             )}
-          </div>
+          </button>
         </CopyToClipboard>
       </div>
       <code className={cx(className, 'px-4')}>{children}</code>
