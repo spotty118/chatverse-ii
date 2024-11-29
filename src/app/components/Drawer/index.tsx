@@ -45,24 +45,23 @@ const Drawer: FC<Props> = ({ isOpen, onClose, children, position = 'left', class
     bottom: 'translate-y-[100%]',
   }
 
-  return createPortal(
-    (
-      <div className="fixed inset-0 z-50 bg-black bg-opacity-50">
-        <div
-          ref={drawerRef}
-          className={cx(
-            'fixed bg-white dark:bg-gray-800 shadow-lg transition-transform duration-300 ease-in-out',
-            positionClasses[position],
-            isOpen ? 'translate-x-0 translate-y-0' : transformClasses[position],
-            className,
-          )}
-        >
-          {children}
-        </div>
+  const drawerContent = (
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-50">
+      <div
+        ref={drawerRef}
+        className={cx(
+          'fixed bg-white dark:bg-gray-800 shadow-lg transition-transform duration-300 ease-in-out',
+          positionClasses[position],
+          isOpen ? 'translate-x-0 translate-y-0' : transformClasses[position],
+          className,
+        )}
+      >
+        {children}
       </div>
-    ) as ReactNode,
-    document.body,
+    </div>
   )
+
+  return createPortal(drawerContent, document.body)
 }
 
 export default Drawer
