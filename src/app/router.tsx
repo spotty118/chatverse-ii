@@ -6,16 +6,12 @@ import PremiumPage from './pages/PremiumPage'
 import SettingPage from './pages/SettingPage'
 import SingleBotChatPanel from './pages/SingleBotChatPanel'
 
-const rootRoute = createRootRoute()
-
-const layoutRoute = createRoute({
-  getParentRoute: () => rootRoute,
+const rootRoute = createRootRoute({
   component: Layout,
-  id: 'layout',
 })
 
 const indexRoute = createRoute({
-  getParentRoute: () => layoutRoute,
+  getParentRoute: () => rootRoute,
   path: '/',
   component: MultiBotChatPanel,
 })
@@ -26,19 +22,19 @@ function ChatRoute() {
 }
 
 const chatRoute = createRoute({
-  getParentRoute: () => layoutRoute,
+  getParentRoute: () => rootRoute,
   path: 'chat/$botId',
   component: ChatRoute,
 })
 
 const settingRoute = createRoute({
-  getParentRoute: () => layoutRoute,
+  getParentRoute: () => rootRoute,
   path: 'setting',
   component: SettingPage,
 })
 
-export const premiumRoute = createRoute({
-  getParentRoute: () => layoutRoute,
+const premiumRoute = createRoute({
+  getParentRoute: () => rootRoute,
   path: 'premium',
   component: PremiumPage,
   validateSearch: (search: Record<string, unknown>) => {
@@ -48,7 +44,7 @@ export const premiumRoute = createRoute({
   },
 })
 
-const routeTree = rootRoute.addChildren([layoutRoute.addChildren([indexRoute, chatRoute, settingRoute, premiumRoute])])
+const routeTree = rootRoute.addChildren([indexRoute, chatRoute, settingRoute, premiumRoute])
 
 const hashHistory = createHashHistory()
 const router = createRouter({ routeTree, history: hashHistory })
