@@ -31,9 +31,8 @@ function CustomCode({ children, className }: CustomCodeProps) {
   return (
     <div className="flex flex-col">
       <div className="bg-[#e6e7e8] dark:bg-[#444a5354] text-xs p-2">
-        {/* @ts-ignore */}
         <CopyToClipboard text={code} onCopy={() => setCopied(true)}>
-          <div className="cursor-pointer">
+          <div>
             {copied ? (
               <div className="flex flex-row items-center gap-2 w-fit ml-1">
                 <BsClipboard />

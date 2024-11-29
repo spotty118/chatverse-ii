@@ -53,9 +53,8 @@ const ChatMessageCard: FC<Props> = ({ message, className }) => {
         {!!message.error && <ErrorAction error={message.error} />}
       </div>
       {!!copyText && (
-        // @ts-ignore
         <CopyToClipboard text={copyText} onCopy={() => setCopied(true)}>
-          <div className="cursor-pointer">
+          <div>
             {copied ? (
               <div className={COPY_ICON_CLASS}>
                 <IoCheckmarkSharp size={16} />
