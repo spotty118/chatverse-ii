@@ -10,11 +10,9 @@ import { router } from './router'
 const container = document.getElementById('app')!
 const root = createRoot(container)
 root.render(
-  React.createElement(
-    React.StrictMode,
-    null,
-    React.createElement(RouterProvider, { router })
-  )
+  <React.StrictMode>
+    <RouterProvider router={router} />
+  </React.StrictMode>
 )
 
 plausible.enableAutoPageviews()

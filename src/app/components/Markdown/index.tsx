@@ -1,6 +1,6 @@
 import { cx } from '~/utils'
 import 'github-markdown-css'
-import { FC, ReactNode, useEffect, useMemo, useState } from 'react'
+import React, { FC, ReactNode, useEffect, useMemo, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { BsClipboard } from 'react-icons/bs'
 import ReactMarkdown from 'react-markdown'

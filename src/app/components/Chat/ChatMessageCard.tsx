@@ -1,5 +1,5 @@
 import { cx } from '~/utils'
-import { FC, memo, useEffect, useMemo, useState } from 'react'
+import React, { FC, memo, useEffect, useMemo, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { IoCheckmarkSharp, IoCopyOutline } from 'react-icons/io5'
 import { BeatLoader } from 'react-spinners'
