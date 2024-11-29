@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import ChatHeader from '../../components/Chat/ChatHeader'
 import ChatInput from '../../components/Chat/ChatInput'
 import ChatMessageCard from '../../components/Chat/ChatMessageCard'
-import { ChatMessageModel } from '~/types'
+import { ChatMessageModel, ChatError } from '~/types'
 
 const MultiBotChatPanel = () => {
   const navigate = useNavigate()
@@ -49,12 +49,18 @@ const MultiBotChatPanel = () => {
       )
     } catch (error) {
       // Handle error
+      const chatError: ChatError = {
+        code: 'UNKNOWN_ERROR',
+        name: 'Error',
+        message: 'Failed to send message. Please try again.'
+      }
+      
       setMessages((prev) =>
         prev.map((msg) =>
           msg.id === loadingMessage.id
             ? {
                 ...msg,
-                error: { message: 'Failed to send message. Please try again.' },
+                error: chatError,
                 loading: false,
               }
             : msg

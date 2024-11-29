@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import produce from 'immer'
+import { produce } from 'immer'
 import { ChatMessageModel } from '~types'
 import { useChatContext } from '~app/context'
 
@@ -16,7 +16,7 @@ const useChat = () => {
         author: 'user',
         timestamp: new Date().toISOString()
       }
-      setMessages(produce((draft) => {
+      setMessages(produce((draft: ChatMessageModel[]) => {
         draft.push(newMessage)
       }))
     },
