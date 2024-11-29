@@ -17,7 +17,7 @@ interface Props {
 const ChatMessage: FC<Props> = ({ botId, message, conversationId }) => {
   const { mutate } = useSWRConfig()
 
-  const deleteMessage = useCallback(async () => {
+  const handleDelete = useCallback(async () => {
     await deleteHistoryMessage(botId, conversationId, message.id)
     mutate(`history:${botId}`)
   }, [botId, conversationId, message.id, mutate])
@@ -25,6 +25,12 @@ const ChatMessage: FC<Props> = ({ botId, message, conversationId }) => {
   if (!message.text) {
     return null
   }
+
+  const authorName = message.author === 'user' 
+    ? 'You' 
+    : message.author === 'assistant' 
+      ? 'Assistant'
+      : CHATBOTS[message.author as BotId]?.name || 'Unknown'
 
   return (
     <div
@@ -34,11 +40,9 @@ const ChatMessage: FC<Props> = ({ botId, message, conversationId }) => {
       )}
     >
       <div className="flex flex-row justify-between">
-        <span className="text-xs text-secondary-tex">
-          {message.author === 'user' ? 'You' : CHATBOTS[message.author].name}
-        </span>
+        <span className="text-xs text-secondary-text">{authorName}</span>
         {!!conversationId && (
-          <FiTrash2 className="invisible group-hover:visible cursor-pointer" onClick={deleteMessage} />
+          <FiTrash2 className="invisible group-hover:visible cursor-pointer" onClick={handleDelete} />
         )}
       </div>
       <Markdown>{message.text}</Markdown>

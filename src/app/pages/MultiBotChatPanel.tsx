@@ -10,13 +10,13 @@ const MultiBotChatPanel = () => {
   const bot = createBotInstance(defaultBotId)
 
   const handleUserSendMessage = useCallback((input: string, image?: File) => {
-    // Handle message sending
     console.log('Sending message:', input)
     const newMessage: ChatMessageModel = {
       id: Date.now().toString(),
       author: 'user',
       text: input,
-      image: image,
+      timestamp: new Date().toISOString(),
+      ...(image && { image })
     }
     setMessages(prev => [...prev, newMessage])
   }, [])

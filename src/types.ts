@@ -4,11 +4,9 @@ export interface ChatMessageModel {
   author: 'user' | 'assistant'
   timestamp: string
   loading?: boolean
-  error?: {
-    message: string
-    code?: string
-  }
+  error?: ChatError
   imageUrl?: string
+  image?: Blob
 }
 
 export interface UserConfig {
