@@ -3,7 +3,7 @@ import { produce } from 'immer'
 import { ChatMessageModel } from '~types'
 import { useChatContext } from '~app/context'
 
-const useChat = () => {
+export const useChat = () => {
   const [messages, setMessages] = useState<ChatMessageModel[]>([])
   const conversation = useChatContext()
 
