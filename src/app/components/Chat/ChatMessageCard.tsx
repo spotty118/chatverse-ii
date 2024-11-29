@@ -29,6 +29,7 @@ const ChatMessageCard: FC<Props> = ({ message, className }) => {
     if (message.error) {
       return message.error.message
     }
+    return ''
   }, [message.error, message.text])
 
   useEffect(() => {
@@ -41,7 +42,7 @@ const ChatMessageCard: FC<Props> = ({ message, className }) => {
     <div className={cx('group flex gap-3 w-full', message.author === 'user' ? 'flex-row-reverse' : 'flex-row', className)}>
       <div className="flex flex-col w-11/12 max-w-fit items-start gap-2">
         <MessageBubble color={message.author === 'user' ? 'primary' : 'flat'}>
-          {!!imageUrl && <img src={imageUrl} className="max-w-xs my-2" />}
+          {!!imageUrl && <img src={imageUrl} className="max-w-xs my-2" alt="Message attachment" />}
           {message.text ? (
             <Markdown>{message.text}</Markdown>
           ) : (
@@ -53,9 +54,9 @@ const ChatMessageCard: FC<Props> = ({ message, className }) => {
       </div>
       {!!copyText && (
         <CopyToClipboard text={copyText} onCopy={() => setCopied(true)}>
-          <div className={COPY_ICON_CLASS}>
+          <span className={COPY_ICON_CLASS}>
             {copied ? <IoCheckmarkSharp /> : <IoCopyOutline />}
-          </div>
+          </span>
         </CopyToClipboard>
       )}
     </div>
