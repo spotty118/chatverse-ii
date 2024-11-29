@@ -1,6 +1,6 @@
 import { FC } from 'react'
 import { useChat } from '~app/hooks/use-chat'
-import { BotId } from '../bots'
+import { BotId, createBotInstance } from '../bots'
 import ConversationPanel from '../components/Chat/ConversationPanel'
 
 interface Props {
@@ -8,17 +8,19 @@ interface Props {
 }
 
 const SingleBotChatPanel: FC<Props> = ({ botId }) => {
-  const chat = useChat(botId)
+  const chat = useChat()
+  const bot = createBotInstance(botId)
+
   return (
     <div className="overflow-hidden h-full">
       <ConversationPanel
         botId={botId}
-        bot={chat.bot}
+        bot={bot}
         messages={chat.messages}
-        onUserSendMessage={chat.sendMessage}
-        generating={chat.generating}
+        onUserSendMessage={chat.handleUserSendMessage}
+        generating={chat.generating || false}
         stopGenerating={chat.stopGenerating}
-        resetConversation={chat.resetConversation}
+        resetConversation={chat.resetChat}
       />
     </div>
   )

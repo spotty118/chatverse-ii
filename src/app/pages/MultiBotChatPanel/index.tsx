@@ -3,14 +3,14 @@ import { useNavigate } from '@tanstack/react-router'
 import ChatHeader from '../../components/Chat/ChatHeader'
 import ChatInput from '../../components/Chat/ChatInput'
 import ChatMessageCard from '../../components/Chat/ChatMessageCard'
-import { ChatMessageModel, ChatError } from '~/types'
+import { ChatMessageModel } from '~/types'
+import { ErrorCode } from '~/utils/errors'
 
 const MultiBotChatPanel = () => {
   const navigate = useNavigate()
   const [messages, setMessages] = useState<ChatMessageModel[]>([])
 
   const handleSend = async (text: string) => {
-    // Add user message
     const userMessage: ChatMessageModel = {
       id: Date.now().toString(),
       text,
@@ -19,7 +19,6 @@ const MultiBotChatPanel = () => {
     }
     setMessages((prev) => [...prev, userMessage])
 
-    // Add loading message for bot
     const loadingMessage: ChatMessageModel = {
       id: (Date.now() + 1).toString(),
       text: '',
@@ -30,12 +29,10 @@ const MultiBotChatPanel = () => {
     setMessages((prev) => [...prev, loadingMessage])
 
     try {
-      // TODO: Implement actual API call here
       const response = await new Promise((resolve) => 
         setTimeout(() => resolve("Hello! I'm your AI assistant. How can I help you today?"), 1000)
       )
 
-      // Replace loading message with response
       setMessages((prev) => 
         prev.map((msg) => 
           msg.id === loadingMessage.id
@@ -48,9 +45,8 @@ const MultiBotChatPanel = () => {
         )
       )
     } catch (error) {
-      // Handle error
-      const chatError: ChatError = {
-        code: 'UNKNOWN_ERROR',
+      const chatError = {
+        code: ErrorCode.UNKOWN_ERROR,
         name: 'Error',
         message: 'Failed to send message. Please try again.'
       }
