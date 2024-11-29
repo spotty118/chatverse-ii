@@ -55,7 +55,9 @@ const ChatMessageCard: FC<Props> = ({ message, className }) => {
       </div>
       {!!copyText && (
         <CopyToClipboard text={copyText} onCopy={() => setCopied(true)}>
-          {copied ? <IoCheckmarkSharp className={COPY_ICON_CLASS} /> : <IoCopyOutline className={COPY_ICON_CLASS} />}
+          <div>
+            {copied ? <IoCheckmarkSharp className={COPY_ICON_CLASS} /> : <IoCopyOutline className={COPY_ICON_CLASS} />}
+          </div>
         </CopyToClipboard>
       )}
     </div>

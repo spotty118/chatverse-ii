@@ -4,11 +4,13 @@ import { parseSSEResponse } from '~utils/sse'
 import { ChatError, ErrorCode } from '~utils/errors'
 
 interface Message {
-  role: 'user' | 'assistant'
+  role: 'user' | 'assistant' | 'model'
   content: string
 }
 
 export class ClaudeApiBot extends AbstractBot {
+  private conversationContext?: { messages: Message[] }
+
   constructor(private apiKey: string) {
     super()
   }
@@ -47,7 +49,11 @@ export class ClaudeApiBot extends AbstractBot {
     params.onEvent({ type: 'DONE' })
   }
 
-  name() {
+  resetConversation() {
+    this.conversationContext = undefined
+  }
+
+  get name(): string {
     return 'Claude (API)'
   }
 }

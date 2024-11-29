@@ -1,72 +1,93 @@
+import md5 from 'md5'
 import { ofetch } from 'ofetch'
-import { API_CONFIG } from '../config/api'
+import i18n from '~app/i18n'
+import { decodePoeFormkey } from '~services/server-api'
+import { ChatError, ErrorCode } from '~utils/errors'
+import AddMessageBreakMutation from './graphql/AddMessageBreakMutation.graphql?raw'
+import ChatViewQuery from './graphql/ChatViewQuery.graphql?raw'
+import MessageAddedSubscription from './graphql/MessageAddedSubscription.graphql?raw'
+import SendMessageMutation from './graphql/SendMessageMutation.graphql?raw'
+import SubscriptionsMutation from './graphql/SubscriptionsMutation.graphql?raw'
+import ViewerStateUpdatedSubscription from './graphql/ViewerStateUpdatedSubscription.graphql?raw'
 
-export async function decodePoeFormkey(html: string): Promise<string> {
-  const resp = await ofetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.poeFormkey}`, {
-    method: 'POST',
-    body: { html },
-  })
-  return resp.formkey
+export const GRAPHQL_QUERIES = {
+  AddMessageBreakMutation,
+  ChatViewQuery,
+  SendMessageMutation,
+  SubscriptionsMutation,
+  MessageAddedSubscription,
+  ViewerStateUpdatedSubscription,
 }
 
-type ActivateResponse =
-  | {
-      activated: true
-      instance: { id: string }
-      meta: { product_id: number }
-    }
-  | { activated: false; error: string }
+export interface PoeSettings {
+  formkey: string
+  tchannelData: ChannelData
+}
 
-export async function activateLicense(key: string, instanceName: string) {
-  return ofetch<ActivateResponse>(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.activateLicense}`, {
+interface ChannelData {
+  minSeq: string
+  channel: string
+  channelHash: string
+  boxName: string
+  baseHost: string
+  targetUrl: string
+  enableWebsocket: boolean
+}
+
+async function getFormkey() {
+  const html: string = await ofetch('https://poe.com', { parseResponse: (txt) => txt })
+  const formkey = await decodePoeFormkey(html)
+  return formkey
+}
+
+export async function getPoeSettings(): Promise<PoeSettings> {
+  const [settings, formkey] = await Promise.all([ofetch<PoeSettings>('https://poe.com/api/settings'), getFormkey()])
+  console.debug('poe formkey', formkey)
+  settings.formkey = formkey
+  return settings
+}
+
+export interface GqlHeaders {
+  formkey: string
+  tchannel: string
+}
+
+export async function gqlRequest(queryName: keyof typeof GRAPHQL_QUERIES, variables: any, poeSettings: PoeSettings) {
+  const query = GRAPHQL_QUERIES[queryName]
+  const payload = { query, variables }
+  const tagId = md5(JSON.stringify(payload) + poeSettings.formkey + 'Jb1hi3fg1MxZpzYfy')
+  return ofetch('https://poe.com/api/gql_POST', {
     method: 'POST',
-    body: {
-      license_key: key,
-      instance_name: instanceName,
+    body: payload,
+    headers: {
+      'poe-formkey': poeSettings.formkey,
+      'poe-tag-id': tagId,
+      'poe-tchannel': poeSettings.tchannelData.channel,
     },
   })
 }
 
-interface Product {
-  price: number
-}
-
-export async function fetchPremiumProduct() {
-  return ofetch<Product>(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.premiumProduct}`)
-}
-
-export async function createDiscount() {
-  return ofetch<{ code: string; startTime: number }>(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.createDiscount}`, {
-    method: 'POST',
-  })
-}
-
-export interface Discount {
-  code: string
-  startTime: number
-  price: number
-  percent: number
+export async function getChatId(bot: string, poeSettings: PoeSettings): Promise<number> {
+  const resp = await gqlRequest('ChatViewQuery', { bot }, poeSettings)
+  if (!resp.data) {
+    throw new ChatError(i18n.t('You need to login to Poe first'), ErrorCode.POE_UNAUTHORIZED)
+  }
+  return resp.data.chatOfBot.chatId
 }
 
 export interface Campaign {
+  id: string
+  name: string
   description: string
-  startTime: number
-  endTime: number
-}
-
-export interface PurchaseInfo {
+  code: string
   price: number
-  discount?: Discount
+}
+
+export interface Discount {
+  id: string
+  code: string
+  show: boolean
   campaign?: Campaign
-}
-
-export async function fetchPurchaseInfo() {
-  return ofetch<PurchaseInfo>(`${API_CONFIG.baseUrl}/premium/purchase-info`)
-}
-
-export async function checkDiscount(params: { appOpenTimes: number; premiumModalOpenTimes: number }) {
-  return ofetch<Discount>(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.checkDiscount}`, {
-    method: 'POST',
-    body: params,
-  })
+  startTime: string
+  endTime: string
 }

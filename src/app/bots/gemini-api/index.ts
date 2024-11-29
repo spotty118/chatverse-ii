@@ -50,18 +50,8 @@ export class GeminiApiBot extends AbstractBot {
     this.conversationContext = undefined
   }
 
-  get name() {
+  get name(): string {
     return 'Gemini Pro'
-  }
-}
-
-export class GeminiBot extends AsyncAbstractBot {
-  async initializeBot() {
-    const { geminiApiKey } = await getUserConfig()
-    if (!geminiApiKey) {
-      throw new Error('Gemini API key missing')
-    }
-    return new GeminiApiBot(geminiApiKey)
   }
 }
 
@@ -104,7 +94,11 @@ export class GeminiApiBackendBot extends AbstractBot {
     params.onEvent({ type: 'DONE' })
   }
 
-  name() {
+  resetConversation() {
+    // Reset conversation state
+  }
+
+  get name(): string {
     return 'Gemini (API)'
   }
 }
