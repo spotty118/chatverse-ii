@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { cx } from '~/utils'
 import 'github-markdown-css'
 import { FC, ReactNode, useEffect, useMemo, useState } from 'react'

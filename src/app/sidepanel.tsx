@@ -7,5 +7,5 @@ const root = createRoot(container)
 root.render(
   <React.StrictMode>
     <SidePanelPage />
-  </React.StrictMode>
+  </React.StrictMode>,
 )

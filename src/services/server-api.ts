@@ -47,22 +47,6 @@ export const activateLicense = async (key: string, instanceName: string) => {
   return { activated: true, instance: { id: '' }, error: '' }
 }
 
-import AddMessageBreakMutation from './graphql/AddMessageBreakMutation.graphql?raw'
-import ChatViewQuery from './graphql/ChatViewQuery.graphql?raw'
-import MessageAddedSubscription from './graphql/MessageAddedSubscription.graphql?raw'
-import SendMessageMutation from './graphql/SendMessageMutation.graphql?raw'
-import SubscriptionsMutation from './graphql/SubscriptionsMutation.graphql?raw'
-import ViewerStateUpdatedSubscription from './graphql/ViewerStateUpdatedSubscription.graphql?raw'
-
-export const GRAPHQL_QUERIES = {
-  AddMessageBreakMutation,
-  ChatViewQuery,
-  SendMessageMutation,
-  SubscriptionsMutation,
-  MessageAddedSubscription,
-  ViewerStateUpdatedSubscription,
-}
-
 export interface PoeSettings {
   formkey: string
   tchannelData: ChannelData
