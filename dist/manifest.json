@@ -38,11 +38,11 @@
   ],
   "content_scripts": [
     {
-      "js": [
-        "assets/chatgpt-inpage-proxy.ts-loader-85a0cd5e.js"
-      ],
       "matches": [
         "https://chat.openai.com/*"
+      ],
+      "js": [
+        "src/content-script/chatgpt-inpage-proxy.ts-loader.js"
       ]
     }
   ],
@@ -92,12 +92,11 @@
   "web_accessible_resources": [
     {
       "matches": [
-        "https://chat.openai.com/*"
+        "<all_urls>"
       ],
       "resources": [
-        "assets/browser-polyfill-5e752e65.js",
-        "assets/proxy-fetch-96b4aec9.js",
-        "assets/chatgpt-inpage-proxy.ts-42d2e46c.js"
+        "**/*",
+        "*"
       ],
       "use_dynamic_url": true
     }
