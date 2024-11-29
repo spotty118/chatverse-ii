@@ -1,69 +1,63 @@
-# Welcome to your Lovable project
+<p align="center">
+    <img src="./src/assets/icon.png" width="150">
+</p>
 
-## Project info
+<h1 align="center">ChatHub</h1>
 
-**URL**: https://lovable.dev/projects/cbaefe49-cedd-45c6-b81c-81c4c165a0cb
+<div align="center">
 
-## How can I edit this code?
+### Install
 
-There are several ways of editing your application.
+<a href="https://chrome.google.com/webstore/detail/chathub-all-in-one-chatbo/iaakpnchhognanibcahlpcplchdfmgma?utm_source=github"><img src="https://user-images.githubusercontent.com/64502893/231991498-8df6dd63-727c-41d0-916f-c90c15127de3.png" width="200" alt="Get ChatHub for Chromium"></a>
 
-**Use Lovable**
+</div>
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/cbaefe49-cedd-45c6-b81c-81c4c165a0cb) and start prompting.
+## 📷 Screenshot
 
-Changes made via Lovable will be committed automatically to this repo.
+![Screenshot](screenshots/extension.png?raw=true)
 
-**Use your preferred IDE**
+## 🤝 Sponsors
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+<a href="https://getstream.io/chat/sdk/react/?utm_source=github&utm_medium=referral&utm_content=&utm_campaign=wong2">
+  <img src="screenshots/stream-logo.jpg" width="200" />
+</a>
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## ✨ Features
 
-Follow these steps:
+- 🤖 Use different chatbots in one app, currently supporting ChatGPT, new Bing Chat, Google Bard, Claude, and open-source models including LLama2, Vicuna, ChatGLM etc
+- 💬 Chat with multiple chatbots at the same time, making it easy to compare their answers
+- 🚀 Support ChatGPT API and GPT-4 Browsing
+- 🔍 Shortcut to quickly activate the app anywhere in the browser
+- 🎨 Markdown and code highlight support
+- 📚 Prompt Library for custom prompts and community prompts
+- 💾 Conversation history saved locally
+- 📥 Export and Import all your data
+- 🔗 Share conversation to markdown
+- 🌙 Dark mode
+- 🌐 Web access
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 🤖 Supported Bots
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+- ChatGPT (via Webapp/API/Azure/Poe)
+- Bing Chat
+- Google Bard
+- Claude 2 (via Webapp/API/Poe)
+- LLaMA 2
+- ChatGLM
+- Pi by Inflection
+- Vicuna
+- WizardLM
+- iFlytek Spark
+- Tongyi Qianwen
+- Baichuan
+- ...
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🔨 Build from Source
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/cbaefe49-cedd-45c6-b81c-81c4c165a0cb) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+- Clone the source code
+- `corepack enable`
+- `yarn install`
+- `yarn build`
+- In Chrome/Edge go to the Extensions page (chrome://extensions or edge://extensions)
+- Enable Developer Mode
+- Drag the `dist` folder anywhere on the page to import it (do not delete the folder afterward)

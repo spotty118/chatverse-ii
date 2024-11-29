@@ -1,63 +1,14 @@
-export type Provider = 
-  | 'openai' 
-  | 'anthropic' 
-  | 'google' 
-  | 'mistral'
-  | 'ollama'
-  | 'openrouter';
+import { BotId } from '~app/bots'
+import { ChatError } from '~utils/errors'
 
-export interface Message {
-  id: string;
-  content: string;
-  isUser: boolean;
-  timestamp: number;
-  provider?: Provider;
-  model?: string;
-  error?: string;
-  pending?: boolean;
-  parentId?: string;
-  context?: string;
-  animate?: boolean;
-  metadata?: {
-    tokens?: number;
-    processingTime?: number;
-    attachments?: string[];
-  };
+export interface ChatMessageModel {
+  id: string
+  author: BotId | 'user'
+  text: string
+  image?: Blob
+  error?: ChatError
 }
 
-export interface ProviderConfig {
-  name: Provider;
-  apiKey?: string;
-  models: string[];
-  isEnabled: boolean;
-  baseUrl?: string;
-  customHeaders?: Record<string, string>;
-  streamingSupported?: boolean;
-  functionCallingSupported?: boolean;
-}
-
-export interface ChatOptions {
-  model: string;
-  temperature?: number;
-  maxTokens?: number;
-  systemPrompt?: string;
-  stream?: boolean;
-  functions?: ChatFunction[];
-  context?: string;
-  attachments?: File[];
-  signal?: AbortSignal;
-}
-
-export interface ChatFunction {
-  name: string;
-  description: string;
-  parameters: Record<string, any>;
-}
-
-export interface ChatState {
-  messages: Message[];
-  context: string;
-  activeThread?: string;
-  streaming: boolean;
-  error?: string;
+export interface ConversationModel {
+  messages: ChatMessageModel[]
 }
