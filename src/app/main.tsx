@@ -1,3 +1,4 @@
+import React from 'react'
 import { RouterProvider } from '@tanstack/react-router'
 import { createRoot } from 'react-dom/client'
 import '../services/sentry'

@@ -1,7 +1,7 @@
 import { validateLicenseKey } from './lemonsqueezy'
 import * as storage from './storage'
 
-export async function activatePremium(key: string) {
+export const activatePremium = async (key: string) => {
   const result = await validateLicenseKey(key)
   if (!result.activated) {
     throw new Error('License activation failed')
@@ -10,20 +10,24 @@ export async function activatePremium(key: string) {
   return result
 }
 
-export async function deactivatePremium() {
+export const deactivatePremium = async () => {
   await storage.removePremiumLicense()
 }
 
-export async function checkPremiumStatus() {
+export const validatePremium = async () => {
   const key = await storage.getPremiumLicense()
   if (!key) {
-    return { activated: false }
+    return { valid: false }
   }
   try {
     const result = await validateLicenseKey(key)
-    return { activated: result.activated }
+    return { valid: result.activated }
   } catch (err) {
     console.error('Failed to validate license:', err)
-    return { activated: false }
+    return { valid: false }
   }
+}
+
+export const getPremiumActivation = () => {
+  return !!localStorage.getItem('premium_license')
 }

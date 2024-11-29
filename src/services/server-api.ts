@@ -36,7 +36,7 @@ export const createDiscount = async () => {
 }
 
 export const checkDiscount = async (params: { appOpenTimes: number; premiumModalOpenTimes: number }) => {
-  return { show: false }
+  return { show: false, campaign: undefined }
 }
 
 export const fetchPurchaseInfo = async (): Promise<PurchaseInfo> => {
@@ -118,4 +118,3 @@ export async function getChatId(bot: string, poeSettings: PoeSettings): Promise<
   }
   return resp.data.chatOfBot.chatId
 }
-
