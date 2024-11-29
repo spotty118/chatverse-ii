@@ -34,17 +34,8 @@ function CustomCode({ children, className }: CustomCodeProps) {
         <CopyToClipboard text={code} onCopy={() => setCopied(true)}>
           <>
             <div role="button" tabIndex={0} className="flex flex-row items-center gap-2 w-fit ml-1 cursor-pointer">
-              {copied ? (
-                <>
-                  <BsClipboard />
-                  <span>copied</span>
-                </>
-              ) : (
-                <>
-                  <BsClipboard />
-                  <span>copy code</span>
-                </>
-              )}
+              <BsClipboard />
+              <span>{copied ? 'copied' : 'copy code'}</span>
             </div>
           </>
         </CopyToClipboard>
