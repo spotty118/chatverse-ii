@@ -21,7 +21,7 @@ function PremiumOnly() {
 
   return (
     <div className="w-full h-full flex flex-col justify-center items-center gap-3">
-      <img src={premiumIcon} className="w-10 h-10" />
+      <img src={premiumIcon} className="w-10 h-10" alt="Premium" />
       <div className="text-xl font-bold">{t('Premium Feature')}</div>
       <Button text={t('Upgrade to unlock')} color="primary" onClick={openPremiumPage} />
     </div>

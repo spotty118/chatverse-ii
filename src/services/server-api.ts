@@ -3,30 +3,48 @@ import { ofetch } from 'ofetch'
 import i18n from '~app/i18n'
 import { ChatError, ErrorCode } from '~utils/errors'
 
-// Export the functions that were missing
+export interface Campaign {
+  id: string
+  name: string
+  description: string
+  code: string
+  price: number
+}
+
+export interface Discount {
+  id: string
+  code: string
+  price: number
+  show: boolean
+  campaign?: Campaign
+  startTime: string
+  endTime: string
+}
+
+export interface PurchaseInfo {
+  price: number
+  discount?: Discount
+  campaign?: Campaign
+}
+
 export const decodePoeFormkey = async (html: string): Promise<string> => {
-  // Implementation would go here
   return ''
 }
 
 export const createDiscount = async () => {
-  // Implementation would go here
   return {}
 }
 
 export const checkDiscount = async (params: { appOpenTimes: number; premiumModalOpenTimes: number }) => {
-  // Implementation would go here
-  return { show: false }
+  return { show: false, campaign: null }
 }
 
-export const fetchPurchaseInfo = async () => {
-  // Implementation would go here
-  return {}
+export const fetchPurchaseInfo = async (): Promise<PurchaseInfo> => {
+  return { price: 0 }
 }
 
 export const activateLicense = async (key: string, instanceName: string) => {
-  // Implementation would go here
-  return { activated: true, instance: { id: '' } }
+  return { activated: true, instance: { id: '' }, error: null }
 }
 
 import AddMessageBreakMutation from './graphql/AddMessageBreakMutation.graphql?raw'
@@ -99,21 +117,4 @@ export async function getChatId(bot: string, poeSettings: PoeSettings): Promise<
     throw new ChatError(i18n.t('You need to login to Poe first'), ErrorCode.POE_UNAUTHORIZED)
   }
   return resp.data.chatOfBot.chatId
-}
-
-export interface Campaign {
-  id: string
-  name: string
-  description: string
-  code: string
-  price: number
-}
-
-export interface Discount {
-  id: string
-  code: string
-  show: boolean
-  campaign?: Campaign
-  startTime: string
-  endTime: string
 }
