@@ -32,7 +32,7 @@ export const decodePoeFormkey = async (html: string): Promise<string> => {
 }
 
 export const createDiscount = async () => {
-  return {}
+  return { price: 0, discount: null, campaign: null }
 }
 
 export const checkDiscount = async (params: { appOpenTimes: number; premiumModalOpenTimes: number }) => {
@@ -40,11 +40,11 @@ export const checkDiscount = async (params: { appOpenTimes: number; premiumModal
 }
 
 export const fetchPurchaseInfo = async (): Promise<PurchaseInfo> => {
-  return { price: 0 }
+  return { price: 0, discount: null, campaign: null }
 }
 
 export const activateLicense = async (key: string, instanceName: string) => {
-  return { activated: true, instance: { id: '' }, error: null }
+  return { activated: true, instance: { id: '' }, error: '' }
 }
 
 import AddMessageBreakMutation from './graphql/AddMessageBreakMutation.graphql?raw'

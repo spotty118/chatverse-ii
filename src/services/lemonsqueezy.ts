@@ -1,37 +1,14 @@
-import { ofetch } from 'ofetch'
-import * as serverApi from '~services/server-api'
+import { activateLicense } from './server-api'
 
-async function activateLicense(key: string, instanceName: string) {
-  const resp = await serverApi.activateLicense(key, instanceName)
-  if (!resp.activated) {
-    throw new Error(resp.error)
+export async function validateLicenseKey(key: string) {
+  try {
+    const result = await activateLicense(key, 'browser')
+    if (!result.activated) {
+      throw new Error('License activation failed')
+    }
+    return result
+  } catch (err) {
+    console.error('License validation error:', err)
+    throw err
   }
-  return resp.instance.id
 }
-
-async function deactivateLicense(key: string, instanceId: string) {
-  await ofetch('https://api.lemonsqueezy.com/v1/licenses/deactivate', {
-    method: 'POST',
-    body: {
-      license_key: key,
-      instance_id: instanceId,
-    },
-  })
-}
-
-type LicenseKey = {
-  valid: boolean
-}
-
-async function validateLicense(key: string, instanceId: string): Promise<LicenseKey> {
-  const resp = await ofetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
-    method: 'POST',
-    body: {
-      license_key: key,
-      instance_id: instanceId,
-    },
-  })
-  return { valid: resp.valid }
-}
-
-export { activateLicense, deactivateLicense, validateLicense }

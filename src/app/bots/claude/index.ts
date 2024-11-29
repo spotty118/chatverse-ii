@@ -14,9 +14,7 @@ export class ClaudeBot extends AsyncAbstractBot {
       if (!config.claudeApiKey) {
         throw new Error('Claude API key missing')
       }
-      const bot = new ClaudeApiBot(config.claudeApiKey)
-      bot.model = config.claudeApiModel
-      return bot
+      return new ClaudeApiBot(config.claudeApiKey)
     }
     if (claudeMode === ClaudeMode.Webapp) {
       return new ClaudeWebBot()
