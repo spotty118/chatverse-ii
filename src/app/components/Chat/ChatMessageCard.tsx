@@ -41,7 +41,7 @@ const ChatMessageCard: FC<Props> = ({ message, className }) => {
     <div
       className={cx('group flex gap-3 w-full', message.author === 'user' ? 'flex-row-reverse' : 'flex-row', className)}
     >
-      <div className="flex flex-col w-11/12  max-w-fit items-start gap-2">
+      <div className="flex flex-col w-11/12 max-w-fit items-start gap-2">
         <MessageBubble color={message.author === 'user' ? 'primary' : 'flat'}>
           {!!imageUrl && <img src={imageUrl} className="max-w-xs my-2" />}
           {message.text ? (

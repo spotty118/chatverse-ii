@@ -8,6 +8,6 @@ import { router } from './router'
 
 const container = document.getElementById('app')!
 const root = createRoot(container)
-root.render(<RouterProvider router={router} />)
+root.render(<RouterProvider router={router} key="router" />)
 
 plausible.enableAutoPageviews()
