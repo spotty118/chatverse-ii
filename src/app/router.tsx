@@ -1,4 +1,4 @@
-import { createHashHistory, createRootRoute, createRoute, createRouter, useParams } from '@tanstack/react-router'
+import { createHashHistory, createRootRoute, createRoute, createRouter } from '@tanstack/react-router'
 import { BotId } from './bots'
 import Layout from './components/Layout'
 import MultiBotChatPanel from './pages/MultiBotChatPanel'
@@ -16,15 +16,10 @@ const indexRoute = createRoute({
   component: MultiBotChatPanel,
 })
 
-function ChatRoute() {
-  const { botId } = useParams({ from: chatRoute.id })
-  return <SingleBotChatPanel botId={botId as BotId} />
-}
-
 const chatRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: 'chat/$botId',
-  component: ChatRoute,
+  component: SingleBotChatPanel,
 })
 
 const settingRoute = createRoute({
@@ -37,11 +32,6 @@ const premiumRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: 'premium',
   component: PremiumPage,
-  validateSearch: (search: Record<string, unknown>) => {
-    return {
-      source: search.source as string | undefined,
-    }
-  },
 })
 
 const routeTree = rootRoute.addChildren([indexRoute, chatRoute, settingRoute, premiumRoute])
