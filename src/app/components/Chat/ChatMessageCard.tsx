@@ -54,17 +54,22 @@ const ChatMessageCard: FC<Props> = ({ message, className }) => {
       </div>
       {!!copyText && (
         <CopyToClipboard text={copyText} onCopy={() => setCopied(true)}>
-          <div className="cursor-pointer">
-            {copied ? (
-              <div className={COPY_ICON_CLASS}>
-                <IoCheckmarkSharp size={16} />
+          {React.createElement(
+            ({ copy }: { copy: () => void }) => (
+              <div className="cursor-pointer" onClick={copy}>
+                {copied ? (
+                  <div className={COPY_ICON_CLASS}>
+                    <IoCheckmarkSharp size={16} />
+                  </div>
+                ) : (
+                  <div className={COPY_ICON_CLASS}>
+                    <IoCopyOutline size={16} />
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className={COPY_ICON_CLASS}>
-                <IoCopyOutline size={16} />
-              </div>
-            )}
-          </div>
+            ),
+            { copy: () => { /* Actual copy logic */ } }
+          )}
         </CopyToClipboard>
       )}
     </div>
