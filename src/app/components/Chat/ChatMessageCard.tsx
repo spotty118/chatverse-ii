@@ -1,6 +1,5 @@
 import { cx } from '~/utils'
 import React, { FC, memo, useEffect, useMemo, useState } from 'react'
-import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { IoCheckmarkSharp, IoCopyOutline } from 'react-icons/io5'
 import { BeatLoader } from 'react-spinners'
 import { ChatMessageModel } from '~/types'
@@ -38,6 +37,15 @@ const ChatMessageCard: FC<Props> = ({ message, className }) => {
     }
   }, [copied])
 
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(copyText)
+      setCopied(true)
+    } catch (err) {
+      console.error('Failed to copy text:', err)
+    }
+  }
+
   return (
     <div className={cx('group flex gap-3 w-full', message.author === 'user' ? 'flex-row-reverse' : 'flex-row', className)}>
       <div className="flex flex-col w-11/12 max-w-fit items-start gap-2">
@@ -53,13 +61,9 @@ const ChatMessageCard: FC<Props> = ({ message, className }) => {
         {!!message.error && <ErrorAction error={message.error} />}
       </div>
       {!!copyText && (
-        <CopyToClipboard text={copyText} onCopy={() => setCopied(true)}>
-          <>
-            <div role="button" tabIndex={0} className={COPY_ICON_CLASS}>
-              {copied ? <IoCheckmarkSharp size={16} /> : <IoCopyOutline size={16} />}
-            </div>
-          </>
-        </CopyToClipboard>
+        <div role="button" tabIndex={0} className={COPY_ICON_CLASS} onClick={handleCopy}>
+          {copied ? <IoCheckmarkSharp size={16} /> : <IoCopyOutline size={16} />}
+        </div>
       )}
     </div>
   )
