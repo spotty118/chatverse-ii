@@ -53,7 +53,7 @@ const ChatMessageCard: FC<Props> = ({ message, className }) => {
         {!!message.error && <ErrorAction error={message.error} />}
       </div>
       {!!copyText && (
-        <CopyToClipboard<HTMLButtonElement> text={copyText} onCopy={() => setCopied(true)}>
+        <CopyToClipboard text={copyText} onCopy={() => setCopied(true)}>
           {(copy: () => void) => (
             <button type="button" onClick={copy} className="cursor-pointer">
               {copied ? (
