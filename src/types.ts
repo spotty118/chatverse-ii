@@ -1,5 +1,7 @@
+import { ErrorCode } from '~utils/errors'
+
 export interface ChatError {
-  code: string
+  code: ErrorCode
   name: string
   message: string
 }

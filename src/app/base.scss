@@ -6,6 +6,9 @@
   $inter-font-display: swap,
   $inter-font-path: 'inter-ui/Inter (web)'
 );
+@use 'highlight.js/scss/github.scss';
+@use 'highlight.js/scss/github-dark.scss';
+
 @include inter-ui.weight-400-normal;
 @include inter-ui.weight-500-normal;
 @include inter-ui.weight-600-normal;
@@ -72,7 +75,6 @@ body {
   --bg-primary: #ffffff;
   --text-primary: #000000;
   --border-color: #e5e7eb;
-  @use 'highlight.js/scss/github.scss';
 }
 
 :root.dark {
@@ -80,7 +82,6 @@ body {
   --bg-primary: #1a1b1e;
   --text-primary: #ffffff;
   --border-color: #2d2d2d;
-  @use 'highlight.js/scss/github-dark.scss';
 }
 
 @media (max-width: 640px) {
