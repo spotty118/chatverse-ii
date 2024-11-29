@@ -68,7 +68,7 @@ export function createBotInstance(botId: BotId) {
     case 'grok':
       return new GrokWebBot()
     case 'gemini':
-      return new GeminiApiBot()
+      return new GeminiApiBot('YOUR_API_KEY') // Replace with actual API key from config
   }
 }
 

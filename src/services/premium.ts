@@ -1,43 +1,29 @@
-import { getBrowser, getOS } from '~app/utils/navigator'
-import * as lemonsqueezy from './lemonsqueezy'
+import { validateLicenseKey } from './lemonsqueezy'
+import * as storage from './storage'
 
-interface PremiumActivation {
-  licenseKey: string
-  instanceId: string
-}
-
-function getInstanceName() {
-  return `${getOS()} / ${getBrowser()}`
-}
-
-export async function activatePremium(licenseKey: string): Promise<PremiumActivation> {
-  const instanceId = await lemonsqueezy.activateLicense(licenseKey, getInstanceName())
-  const data = { licenseKey, instanceId }
-  localStorage.setItem('premium', JSON.stringify(data))
-  return data
-}
-
-export async function validatePremium() {
-  const activation = getPremiumActivation()
-  if (!activation) {
-    return { valid: false }
+export async function activatePremium(key: string) {
+  const result = await validateLicenseKey(key)
+  if (!result.activated) {
+    throw new Error('License activation failed')
   }
-  return lemonsqueezy.validateLicense(activation.licenseKey, activation.instanceId)
+  await storage.setPremiumLicense(key)
+  return result
 }
 
 export async function deactivatePremium() {
-  const activation = getPremiumActivation()
-  if (!activation) {
-    return
-  }
-  await lemonsqueezy.deactivateLicense(activation.licenseKey, activation.instanceId)
-  localStorage.removeItem('premium')
+  await storage.removePremiumLicense()
 }
 
-export function getPremiumActivation(): PremiumActivation | null {
-  const data = localStorage.getItem('premium')
-  if (data) {
-    return JSON.parse(data)
+export async function checkPremiumStatus() {
+  const key = await storage.getPremiumLicense()
+  if (!key) {
+    return { activated: false }
   }
-  return null
+  try {
+    const result = await validateLicenseKey(key)
+    return { activated: result.activated }
+  } catch (err) {
+    console.error('Failed to validate license:', err)
+    return { activated: false }
+  }
 }

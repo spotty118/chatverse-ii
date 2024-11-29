@@ -32,15 +32,15 @@ export const decodePoeFormkey = async (html: string): Promise<string> => {
 }
 
 export const createDiscount = async () => {
-  return { price: 0, discount: null, campaign: null }
+  return { price: 0, discount: undefined, campaign: undefined }
 }
 
 export const checkDiscount = async (params: { appOpenTimes: number; premiumModalOpenTimes: number }) => {
-  return { show: false, campaign: null }
+  return { show: false }
 }
 
 export const fetchPurchaseInfo = async (): Promise<PurchaseInfo> => {
-  return { price: 0, discount: null, campaign: null }
+  return { price: 0, discount: undefined, campaign: undefined }
 }
 
 export const activateLicense = async (key: string, instanceName: string) => {
@@ -118,3 +118,4 @@ export async function getChatId(bot: string, poeSettings: PoeSettings): Promise<
   }
   return resp.data.chatOfBot.chatId
 }
+
