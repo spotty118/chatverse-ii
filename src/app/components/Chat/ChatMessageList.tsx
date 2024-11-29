@@ -1,4 +1,4 @@
-import { FC, ReactNode } from 'react'
+import { FC } from 'react'
 import { cx } from '~/utils'
 import ScrollToBottom from 'react-scroll-to-bottom'
 import { BotId } from '~app/bots'

@@ -62,22 +62,18 @@ interface ChannelData {
   enableWebsocket: boolean
 }
 
-async function getFormkey() {
-  const html: string = await ofetch('https://poe.com', { parseResponse: (txt) => txt })
-  const formkey = await decodePoeFormkey(html)
-  return formkey
-}
-
-export async function getPoeSettings(): Promise<PoeSettings> {
-  const [settings, formkey] = await Promise.all([ofetch<PoeSettings>('https://poe.com/api/settings'), getFormkey()])
-  console.debug('poe formkey', formkey)
-  settings.formkey = formkey
-  return settings
-}
-
 export interface GqlHeaders {
   formkey: string
   tchannel: string
+}
+
+export const GRAPHQL_QUERIES = {
+  AddMessageBreakMutation: '',
+  ChatViewQuery: '',
+  SendMessageMutation: '',
+  SubscriptionsMutation: '',
+  MessageAddedSubscription: '',
+  ViewerStateUpdatedSubscription: '',
 }
 
 export async function gqlRequest(queryName: keyof typeof GRAPHQL_QUERIES, variables: any, poeSettings: PoeSettings) {

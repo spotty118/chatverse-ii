@@ -13,9 +13,14 @@ import supersub from 'remark-supersub'
 import Tooltip from '../Tooltip'
 import './markdown.css'
 
-function CustomCode(props: { children: ReactNode; className?: string }) {
+interface CustomCodeProps {
+  children: ReactNode
+  className?: string
+}
+
+function CustomCode({ children, className }: CustomCodeProps) {
   const [copied, setCopied] = useState(false)
-  const code = useMemo(() => reactNodeToString(props.children), [props.children])
+  const code = useMemo(() => reactNodeToString(children), [children])
 
   useEffect(() => {
     if (copied) {
@@ -33,7 +38,7 @@ function CustomCode(props: { children: ReactNode; className?: string }) {
           </span>
         </CopyToClipboard>
       </div>
-      <code className={cx(props.className, 'px-4')}>{props.children}</code>
+      <code className={cx(className, 'px-4')}>{children}</code>
     </div>
   )
 }
