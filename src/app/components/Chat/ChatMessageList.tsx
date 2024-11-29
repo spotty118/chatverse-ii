@@ -13,6 +13,7 @@ interface Props {
 
 const ChatMessageList: FC<Props> = (props) => {
   return (
+    // @ts-ignore
     <ScrollToBottom className="overflow-auto h-full">
       <div className={cx('flex flex-col gap-3 h-full', props.className)}>
         {props.messages.map((message, index) => (

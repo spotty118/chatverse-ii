@@ -53,6 +53,7 @@ const ChatMessageCard: FC<Props> = ({ message, className }) => {
         {!!message.error && <ErrorAction error={message.error} />}
       </div>
       {!!copyText && (
+        // @ts-ignore
         <CopyToClipboard text={copyText} onCopy={() => setCopied(true)}>
           <div className="cursor-pointer">
             {copied ? (
