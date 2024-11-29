@@ -6,8 +6,6 @@ const container = document.getElementById('app')!
 const root = createRoot(container)
 root.render(
   <React.StrictMode>
-    <React.Fragment>
-      <SidePanelPage />
-    </React.Fragment>
+    {React.createElement(SidePanelPage)}
   </React.StrictMode>
 )
