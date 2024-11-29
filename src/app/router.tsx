@@ -49,4 +49,4 @@ const routeTree = rootRoute.addChildren([indexRoute, chatRoute, settingRoute, pr
 const hashHistory = createHashHistory()
 const router = createRouter({ routeTree, history: hashHistory })
 
-export { router }
+export { router, premiumRoute }
